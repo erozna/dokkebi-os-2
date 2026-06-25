@@ -29,6 +29,7 @@ def test_info():
     data = resp.json()
     assert data["name"] == "DOKKEBI OS API"
     assert data["version"] == "0.3.0"
+    assert data["subscription_bridge"] == "enabled"
 
 
 def test_goal_post_requires_token_when_configured(monkeypatch):

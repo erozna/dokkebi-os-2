@@ -2,7 +2,7 @@
   "schema_version": "1.3",
   "description": "도깨비 OS 2.0 프로젝트 인계용 SHARED_BRAIN (기획 섹션)",
   "dokkebi_os_2_planning": {
-    "updated_at": "2026-06-25T11:58:45.728565+00:00",
+    "updated_at": "2026-06-25T12:56:32.570042+00:00",
     "project_path": "D:\\SynologyDrive\\dokkebi\\projects\\shared-brain-day1",
     "repo_url": "https://github.com/erozna/dokkebi-os-2",
     "branch": "main",
@@ -199,7 +199,7 @@
       }
     ],
     "day4_bot_verification": {
-      "verified_at": "2026-06-25T11:58:45.728565+00:00",
+      "verified_at": "2026-06-25T12:56:32.570042+00:00",
       "pid": 14176,
       "results": {
         "ping": {
@@ -323,14 +323,26 @@
         "FastAPI /goal 채팅 UI + /info",
         "docker/sandbox RestrictedPython 컨테이너",
         "app/tools/sandbox.py",
-        "CI desktop npm build job"
+        "CI desktop npm build job",
+        "Subscription Bridge (handoff/ + /bridge + ECONOMY_MODE)"
       ],
-      "pytest": "31/31",
+      "pytest": "36/36",
       "pending": [
         "봇 NAS 이전",
         "CopilotKit runtime Week 4",
         "tauri build 패키징"
       ]
+    },
+    "subscription_bridge": {
+      "enabled": true,
+      "docs": "docs/SUBSCRIPTION_BRIDGE.md",
+      "commands": [
+        "/bridge prep",
+        "/bridge ingest",
+        "/bridge next",
+        "/bridge status"
+      ],
+      "cursor_rule": ".cursor/rules/subscription-bridge.mdc"
     },
     "week2_next": {
       "title": "Week 4 Tauri MVP + Composio",

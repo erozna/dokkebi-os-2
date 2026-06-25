@@ -264,9 +264,16 @@ def build_planning() -> dict:
                 "docker/sandbox RestrictedPython 컨테이너",
                 "app/tools/sandbox.py",
                 "CI desktop npm build job",
+                "Subscription Bridge (handoff/ + /bridge + ECONOMY_MODE)",
             ],
-            "pytest": "31/31",
+            "pytest": "36/36",
             "pending": ["봇 NAS 이전", "CopilotKit runtime Week 4", "tauri build 패키징"],
+        },
+        "subscription_bridge": {
+            "enabled": True,
+            "docs": "docs/SUBSCRIPTION_BRIDGE.md",
+            "commands": ["/bridge prep", "/bridge ingest", "/bridge next", "/bridge status"],
+            "cursor_rule": ".cursor/rules/subscription-bridge.mdc",
         },
         "week2_next": {
             "title": "Week 4 Tauri MVP + Composio",

@@ -1,4 +1,4 @@
-"""텔레그램 봇 — /ping, /memory, /goal, /debate."""
+"""텔레그램 봇 — /ping, /memory, /goal, /debate, /bridge."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import ensure_env_from_credentials, use_chroma_server
 from app.memory_service import format_memory_results, search_memories
+from app.subscription_bridge import bridge_ingest, bridge_next, bridge_prep, bridge_status
 from app.supervisor import run_supervisor
 
 _MEMORY_CATEGORIES = frozenset({"episodic", "semantic", "procedural", "preference"})
@@ -110,6 +111,102 @@ async def debate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f"처리 중 오류: {exc}")
 
 
+def _format_bridge_prep(result: dict) -> str:
+    return (
+        f"[Bridge prep]\n"
+        f"주제: {result.get('topic')}\n"
+        f"역할: {result.get('role')} → {result.get('channel_hint')}\n"
+        f"파일: {result.get('outbox_file')}\n\n"
+        f"--- 붙여넣기 프롬프트 (앞 1500자) ---\n"
+        f"{(result.get('prompt_preview') or '')[:1500]}\n\n"
+        f"답변 후: /bridge ingest <답변>"
+    )
+
+
+def _format_bridge_next(result: dict) -> str:
+    if result.get("done"):
+        return (
+            f"[Bridge 완료]\n"
+            f"{result.get('message', '')}\n"
+            f"latest: {result.get('latest_path', 'handoff/latest.md')}"
+        )
+    return (
+        f"[Bridge round {result.get('round')}]\n"
+        f"역할: {result.get('role')} → {result.get('channel_hint')}\n"
+        f"파일: {result.get('outbox_file')}\n\n"
+        f"{(result.get('prompt_preview') or '')[:1500]}\n\n"
+        f"답변 후: /bridge ingest <답변>"
+    )
+
+
+async def bridge(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Subscription Bridge — 정액제 웹 핸드오프."""
+    args = list(context.args or [])
+    if not args:
+        await update.message.reply_text(
+            "사용법:\n"
+            "/bridge prep <주제>\n"
+            "/bridge status\n"
+            "/bridge next\n"
+            "/bridge ingest <웹 UI 답변 전체>\n\n"
+            "docs/SUBSCRIPTION_BRIDGE.md 참고"
+        )
+        return
+
+    sub = args[0].lower()
+    rest = " ".join(args[1:]).strip()
+    chat_id = str(update.effective_chat.id) if update.effective_chat else "telegram"
+    thread_id = f"tg-bridge-{chat_id}"
+
+    try:
+        if sub == "prep":
+            if not rest:
+                await update.message.reply_text("사용법: /bridge prep <주제>")
+                return
+            result = bridge_prep(rest, thread_id=thread_id)
+            await update.message.reply_text(_format_bridge_prep(result))
+            return
+
+        if sub == "status":
+            st = bridge_status()
+            if not st.get("active"):
+                await update.message.reply_text(st.get("message", "세션 없음"))
+                return
+            await update.message.reply_text(
+                f"주제: {st.get('topic')}\n"
+                f"진행: {st.get('current_index')}/{st.get('total_rounds')}\n"
+                f"다음 역할: {st.get('next_role')}\n"
+                f"outbox: {st.get('current_outbox')}"
+            )
+            return
+
+        if sub == "next":
+            result = bridge_next()
+            await update.message.reply_text(_format_bridge_next(result))
+            return
+
+        if sub == "ingest":
+            if not rest:
+                await update.message.reply_text("사용법: /bridge ingest <Claude/Gemini 답변>")
+                return
+            result = bridge_ingest(rest, thread_id=thread_id)
+            lines = [
+                f"저장: {result.get('ingested_role')}",
+                f"inbox: {result.get('inbox_file')}",
+            ]
+            nxt = result.get("next")
+            if isinstance(nxt, dict):
+                lines.append("")
+                lines.append(_format_bridge_next(nxt))
+            await update.message.reply_text("\n".join(lines)[:4000])
+            return
+
+        await update.message.reply_text("알 수 없는 subcommand. /bridge 만 입력해 도움말.")
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("/bridge 실패")
+        await update.message.reply_text(f"Bridge 오류: {exc}")
+
+
 def main() -> None:
     """폴링 봇 기동."""
     ensure_env_from_credentials()
@@ -123,7 +220,8 @@ def main() -> None:
     app.add_handler(CommandHandler("memory", memory))
     app.add_handler(CommandHandler("goal", goal))
     app.add_handler(CommandHandler("debate", debate))
-    logger.info("Telegram bot polling started (/ping, /memory, /goal, /debate)")
+    app.add_handler(CommandHandler("bridge", bridge))
+    logger.info("Telegram bot polling started (/ping, /memory, /goal, /debate, /bridge)")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 

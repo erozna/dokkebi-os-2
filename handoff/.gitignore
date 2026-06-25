@@ -1,0 +1,9 @@
+# Subscription Bridge — 런타임 산출물 (git 제외)
+
+active/
+inbox/*
+!inbox/.gitkeep
+outbox/*
+!outbox/.gitkeep
+latest.md
+implement.md

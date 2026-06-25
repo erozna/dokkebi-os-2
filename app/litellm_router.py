@@ -52,8 +52,14 @@ def map_parser_intent(parser_intent: str, user_input: str) -> RouterIntent:
     return "default"
 
 
+def economy_mode() -> bool:
+    return os.environ.get("ECONOMY_MODE", "").lower() in ("1", "true", "yes")
+
+
 def select_model(router_intent: RouterIntent) -> str:
     """의도에 맞는 litellm 모델 문자열."""
+    if economy_mode() and router_intent == "default":
+        return _INTENT_MODEL["short"]
     return _INTENT_MODEL.get(router_intent, _INTENT_MODEL["default"])
 
 

@@ -54,10 +54,14 @@ def healthz() -> dict[str, str]:
 @app.get("/info")
 def info() -> dict[str, str]:
     """Tauri / CopilotKit 클라이언트용 메타."""
+    import os
+
     return {
         "name": "DOKKEBI OS API",
         "version": app.version,
         "copilotkit": "week3-scaffold",
+        "subscription_bridge": "enabled",
+        "economy_mode": os.environ.get("ECONOMY_MODE", ""),
     }
 
 
@@ -100,3 +104,62 @@ def goal_post(
         web_hits=int(result.get("web_hits") or 0),
         elapsed_seconds=float(result.get("elapsed_sec") or 0.0),
     )
+
+
+class BridgePrepRequest(BaseModel):
+    topic: str = Field(..., min_length=1)
+    thread_id: str | None = None
+
+
+class BridgeIngestRequest(BaseModel):
+    reply: str = Field(..., min_length=1)
+    role: str | None = None
+    thread_id: str | None = None
+
+
+@app.post("/bridge/prep")
+def bridge_prep_post(
+    body: BridgePrepRequest,
+    _: None = Depends(require_goal_auth),
+) -> dict:
+    from app.subscription_bridge import bridge_prep
+
+    return bridge_prep(
+        body.topic,
+        thread_id=body.thread_id or "api-bridge",
+    )
+
+
+@app.post("/bridge/ingest")
+def bridge_ingest_post(
+    body: BridgeIngestRequest,
+    _: None = Depends(require_goal_auth),
+) -> dict:
+    from app.subscription_bridge import bridge_ingest
+
+    return bridge_ingest(
+        body.reply,
+        role=body.role,
+        thread_id=body.thread_id or "api-bridge",
+    )
+
+
+@app.post("/bridge/next")
+def bridge_next_post(_: None = Depends(require_goal_auth)) -> dict:
+    from app.subscription_bridge import bridge_next
+
+    return bridge_next()
+
+
+@app.get("/bridge/status")
+def bridge_status_get(_: None = Depends(require_goal_auth)) -> dict:
+    from app.subscription_bridge import bridge_status
+
+    return bridge_status()
+
+
+@app.get("/bridge/latest")
+def bridge_latest_get(_: None = Depends(require_goal_auth)) -> dict[str, str]:
+    from app.subscription_bridge import read_latest
+
+    return {"content": read_latest()}

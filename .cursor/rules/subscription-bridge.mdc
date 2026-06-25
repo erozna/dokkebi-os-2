@@ -1,0 +1,16 @@
+---
+description: Subscription Bridge handoff — read before implementing multi-step tasks
+globs: handoff/**/*
+alwaysApply: false
+---
+
+# Subscription Bridge
+
+When `handoff/latest.md` or `handoff/implement.md` exists and the user is continuing a Bridge session:
+
+1. Read `handoff/latest.md` first for round summaries and consensus.
+2. Implement only what the consensus section states; minimal diff.
+3. Run `pytest` after changes.
+4. Do not use CrewAI API debate when Bridge mode is active — web subscriptions already provided the debate.
+
+Bridge flow docs: `docs/SUBSCRIPTION_BRIDGE.md`
