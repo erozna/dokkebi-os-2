@@ -11,7 +11,7 @@ from app.supervisor import run_supervisor
 
 ensure_env_from_credentials()
 
-app = FastAPI(title="DOKKEBI OS API", version="0.2.0")
+app = FastAPI(title="DOKKEBI OS API", version="0.3.0")
 
 
 class GoalRequest(BaseModel):
@@ -31,6 +31,16 @@ class GoalResponse(BaseModel):
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/info")
+def info() -> dict[str, str]:
+    """Tauri / CopilotKit 클라이언트용 메타."""
+    return {
+        "name": "DOKKEBI OS API",
+        "version": app.version,
+        "copilotkit": "week3-scaffold",
+    }
 
 
 def require_goal_auth(

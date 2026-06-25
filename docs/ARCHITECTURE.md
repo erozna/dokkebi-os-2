@@ -1,14 +1,15 @@
 # 도깨비 OS 2.0 아키텍처 (현재 + 로드맵)
 
-> SHARED_BRAIN `dokkebi_os_2_planning` 기준. **Week 1~Day 6 구현 반영**, Week 2~5는 DoD 수준.
+> SHARED_BRAIN `dokkebi_os_2_planning` 기준. **Week 1~3 Tauri 스캐폴드 반영**, Week 4~5는 DoD 수준.
 
 ## 전체 플로 (현재 동작)
 
 ```mermaid
 flowchart TB
     subgraph ingress [진입점 - 구현됨]
-        TG[Telegram Bot<br/>/ping /memory /goal]
-        API[FastAPI :8765<br/>POST /goal + Bearer<br/>GET /healthz]
+        TG[Telegram Bot<br/>/ping /memory /goal /debate]
+        API[FastAPI :8765<br/>POST /goal GET /healthz /info]
+        TAURI[Tauri Desktop<br/>desktop/]
     end
 
     subgraph supervisor [LangGraph Supervisor - 구현됨]
@@ -39,8 +40,10 @@ flowchart TB
 
     TG --> supervisor
     API --> supervisor
+    TAURI --> API
     OF --> TG
     OF --> API
+    OF --> TAURI
 
     subgraph ci [안전망 - Day 5]
         GHA[GitHub Actions<br/>pytest + ruff]
@@ -53,8 +56,8 @@ flowchart TB
 ```mermaid
 flowchart LR
     W1[Week 1<br/>백엔드+메모리<br/>DONE]
-    W2[Week 2<br/>CrewAI 4역할]
-    W3[Week 3<br/>Tauri 착수]
+    W2[Week 2<br/>CrewAI 4역할<br/>DONE]
+    W3[Week 3<br/>Tauri 착수<br/>IN PROGRESS]
     W4[Week 4<br/>Composio MCP]
     W5[Week 5<br/>Self-Harness]
 
@@ -65,8 +68,9 @@ flowchart LR
 
 | 구간 | 내용 | 상태 |
 |------|------|------|
-| CrewAI 토론 | 장인/심판자/검사관/재판장 | **구현됨** (`/debate`, 토론 키워드) |
-| Tauri UI | CopilotKit + React | Week 3 |
+| CrewAI 토론 | 장인/심판자/검사관/재판장 | **구현됨** |
+| Tauri UI | CopilotKit + React + ko i18n | **스캐폴드** (`desktop/`) |
+| Docker sandbox | RestrictedPython | **구현됨** (`docker/sandbox`) |
 | Composio | MCP 통합 | Week 4 |
 | Self-Harness | KPI + NAS cron | Week 5 |
 
@@ -97,7 +101,7 @@ sequenceDiagram
 ## 무엇이 **아직** 그려지지 않았나
 
 - ~~CrewAI 노드별 프롬프트·토론 루프 상세 시퀀스~~ → 위 시퀀스 + `app/crew/`
-- Tauri 화면 와이어프레임
+- ~~Tauri 화면 와이어프레임~~ → `desktop/` 기본 채팅 레이아웃
 - Self-Harness KPI 5개 정의
 - ~~FastAPI 인증~~ → `GOAL_API_TOKEN` Bearer / `X-API-Key` (설정 시만)
 

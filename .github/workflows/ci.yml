@@ -32,6 +32,23 @@ jobs:
       - name: Pytest
         run: pytest -q
 
+  desktop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install and build frontend
+        working-directory: desktop
+        run: |
+          npm ci
+          npm run build
+
   gitleaks-scan:
     runs-on: ubuntu-latest
     steps:

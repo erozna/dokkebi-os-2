@@ -2,7 +2,7 @@
   "schema_version": "1.3",
   "description": "도깨비 OS 2.0 프로젝트 인계용 SHARED_BRAIN (기획 섹션)",
   "dokkebi_os_2_planning": {
-    "updated_at": "2026-06-25T11:36:34.349957+00:00",
+    "updated_at": "2026-06-25T11:58:45.728565+00:00",
     "project_path": "D:\\SynologyDrive\\dokkebi\\projects\\shared-brain-day1",
     "repo_url": "https://github.com/erozna/dokkebi-os-2",
     "branch": "main",
@@ -71,6 +71,7 @@
       },
       "week3": {
         "title": "Docker 샌드박스 + Tauri UI 착수",
+        "status": "착수 (코어 스캐폴드)",
         "dod": [
           "코드 실행 샌드박스 컨테이너",
           "Tauri 2.0 프로젝트 스캐폴드",
@@ -198,7 +199,7 @@
       }
     ],
     "day4_bot_verification": {
-      "verified_at": "2026-06-25T11:36:34.349957+00:00",
+      "verified_at": "2026-06-25T11:58:45.728565+00:00",
       "pid": 14176,
       "results": {
         "ping": {
@@ -314,10 +315,27 @@
         "실전 /debate Tavily+Opus 비용 검증"
       ]
     },
+    "week3_started": {
+      "started": "2026-06-25",
+      "items": [
+        "desktop/ Tauri 2 + React TS",
+        "CopilotKit provider + react-i18next 한국어",
+        "FastAPI /goal 채팅 UI + /info",
+        "docker/sandbox RestrictedPython 컨테이너",
+        "app/tools/sandbox.py",
+        "CI desktop npm build job"
+      ],
+      "pytest": "31/31",
+      "pending": [
+        "봇 NAS 이전",
+        "CopilotKit runtime Week 4",
+        "tauri build 패키징"
+      ]
+    },
     "week2_next": {
-      "title": "Week 2 잔여 + Week 3 Tauri 착수",
+      "title": "Week 4 Tauri MVP + Composio",
       "blocked_by": null,
-      "dod_ref": "roadmap_5weeks.week3"
+      "dod_ref": "roadmap_5weeks.week4"
     },
     "day4_infra_done": [
       "gh CLI v2.95.0 설치 완료",

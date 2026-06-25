@@ -23,6 +23,14 @@ def test_healthz():
     assert resp.json() == {"status": "ok"}
 
 
+def test_info():
+    resp = client.get("/info")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["name"] == "DOKKEBI OS API"
+    assert data["version"] == "0.3.0"
+
+
 def test_goal_post_requires_token_when_configured(monkeypatch):
     monkeypatch.setenv("GOAL_API_TOKEN", "test-secret")
     resp = client.post("/goal", json={"user_input": "ping test"})

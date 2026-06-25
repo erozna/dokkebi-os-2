@@ -1,0 +1,29 @@
+{
+  "app": {
+    "title": "도깨비 OS 2.0",
+    "subtitle": "효남금속 · 개인 AI OS"
+  },
+  "nav": {
+    "chat": "대화",
+    "memory": "기억",
+    "settings": "설정"
+  },
+  "chat": {
+    "placeholder": "목표나 질문을 입력하세요…",
+    "send": "전송",
+    "debate": "4역할 토론",
+    "thinking": "처리 중…",
+    "empty": "도깨비에게 무엇이든 물어보세요.",
+    "backend_ok": "백엔드 연결됨",
+    "backend_down": "백엔드 오프라인 (127.0.0.1:8765)"
+  },
+  "copilot": {
+    "title": "도깨비 어시스턴트",
+    "initial": "무엇을 도와드릴까요? 코드, 기억 검색, 토론을 요청할 수 있습니다."
+  },
+  "settings": {
+    "apiUrl": "API 주소",
+    "language": "언어",
+    "korean": "한국어"
+  }
+}

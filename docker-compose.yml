@@ -9,6 +9,21 @@ services:
       IS_PERSISTENT: "TRUE"
       ANONYMIZED_TELEMETRY: "FALSE"
 
+  sandbox:
+    build: ./docker/sandbox
+    container_name: dokkebi-sandbox
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    network_mode: none
+    mem_limit: 256m
+    cpus: 0.5
+    restart: unless-stopped
+
   api:
     build: .
     ports:

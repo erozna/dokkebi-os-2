@@ -1,0 +1,63 @@
+:root {
+  font-family: "Segoe UI", "Malgun Gothic", system-ui, sans-serif;
+  line-height: 1.5;
+  color: #e6edf3;
+  background-color: #0d1117;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.dokkebi-app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  height: 100vh;
+}
+
+.dokkebi-sidebar {
+  background: #161b22;
+  border-right: 1px solid #30363d;
+  padding: 1.25rem 1rem;
+}
+
+.dokkebi-sidebar h1 {
+  font-size: 1.15rem;
+  margin: 0 0 0.25rem;
+}
+
+.subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 0.8rem;
+  color: #8b949e;
+}
+
+.dokkebi-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.nav-active {
+  color: #58a6ff;
+  font-weight: 600;
+}
+
+.nav-muted {
+  color: #484f58;
+}
+
+.dokkebi-main {
+  padding: 1rem 1.25rem;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}

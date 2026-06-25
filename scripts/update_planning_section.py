@@ -80,6 +80,7 @@ def build_planning() -> dict:
             },
             "week3": {
                 "title": "Docker 샌드박스 + Tauri UI 착수",
+                "status": "착수 (코어 스캐폴드)",
                 "dod": [
                     "코드 실행 샌드박스 컨테이너",
                     "Tauri 2.0 프로젝트 스캐폴드",
@@ -254,10 +255,23 @@ def build_planning() -> dict:
             "pytest": "28/28",
             "pending": ["실전 /debate Tavily+Opus 비용 검증"],
         },
+        "week3_started": {
+            "started": "2026-06-25",
+            "items": [
+                "desktop/ Tauri 2 + React TS",
+                "CopilotKit provider + react-i18next 한국어",
+                "FastAPI /goal 채팅 UI + /info",
+                "docker/sandbox RestrictedPython 컨테이너",
+                "app/tools/sandbox.py",
+                "CI desktop npm build job",
+            ],
+            "pytest": "31/31",
+            "pending": ["봇 NAS 이전", "CopilotKit runtime Week 4", "tauri build 패키징"],
+        },
         "week2_next": {
-            "title": "Week 2 잔여 + Week 3 Tauri 착수",
+            "title": "Week 4 Tauri MVP + Composio",
             "blocked_by": None,
-            "dod_ref": "roadmap_5weeks.week3",
+            "dod_ref": "roadmap_5weeks.week4",
         },
         "day4_infra_done": [
             "gh CLI v2.95.0 설치 완료",
