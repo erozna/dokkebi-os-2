@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from app.config import ROOT, chroma_host, chroma_port
 
 # Mem0 embedded Chroma 저장 위치

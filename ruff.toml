@@ -1,0 +1,6 @@
+[lint]
+select = ["F"]
+
+[lint.per-file-ignores]
+"scripts/*" = []
+"bot/*" = []

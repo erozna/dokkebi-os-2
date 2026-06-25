@@ -1,0 +1,15 @@
+title = "dokkebi-os-2 gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Path references and docs without secret values"
+paths = [
+  '''\.env\.example$''',
+  '''^docs/''',
+  '''^tests/''',
+  '''^scripts/security_audit\.py$''',
+  '''^SHARED_BRAIN\.json$''',
+  '''^scripts/update_planning_section\.py$''',
+]

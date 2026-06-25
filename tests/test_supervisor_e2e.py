@@ -8,7 +8,7 @@ from unittest.mock import patch
 import pytest
 
 from app.litellm_router import map_parser_intent, select_model
-from app.supervisor import CHECKPOINT_DB, build_graph, get_supervisor, run_supervisor
+from app.supervisor import CHECKPOINT_DB, build_graph, run_supervisor
 
 
 @pytest.fixture()
@@ -57,7 +57,6 @@ def test_summary_uses_gemini_intent():
 def test_memory_id_restore_by_search(mock_llm):
     """시나리오4: memory_id 저장 후 검색 가능."""
     result = run_supervisor("테스트 기억 저장", thread_id="e2e-restore")
-    mid = result.get("memory_id", "")
     # memory_id 없어도 응답 본문은 검색 키가 됨
     from app.memory_service import search_memories
 

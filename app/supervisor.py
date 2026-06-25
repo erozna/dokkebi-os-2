@@ -5,7 +5,6 @@ from __future__ import annotations
 import sqlite3
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import TypedDict
 
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -33,6 +32,8 @@ class SupervisorState(TypedDict, total=False):
     timestamp: str
     elapsed_sec: float
     thread_id: str
+    memory_hits: int
+    router_intent_override: str
 
 
 def _classify_intent(text: str) -> str:
@@ -68,13 +69,19 @@ def reasoner(state: SupervisorState) -> SupervisorState:
     t0 = time.perf_counter()
     user_input = state.get("input") or ""
     parser_intent = state.get("intent") or "command"
-    router_intent = map_parser_intent(parser_intent, user_input)
+    override = state.get("router_intent_override")
+    if override and override != "default":
+        router_intent = override  # type: ignore[assignment]
+    else:
+        router_intent = map_parser_intent(parser_intent, user_input)
 
     prompt = user_input
+    memory_hits = 0
     # 요약·이전 대화: Mem0 검색 컨텍스트 주입
     thread_id = state.get("thread_id") or "supervisor-default"
     if router_intent == "summary" or "이전" in user_input:
         hits = search_memories(user_input, limit=3, user_id=thread_id)
+        memory_hits = len(hits)
         if hits:
             ctx = "\n".join(
                 f"- {(h.get('memory') or h.get('data') or '')[:200]}" for h in hits
@@ -92,6 +99,7 @@ def reasoner(state: SupervisorState) -> SupervisorState:
         "response": response,
         "model_used": model_used,
         "elapsed_sec": elapsed,
+        "memory_hits": memory_hits,
     }
 
 
@@ -165,12 +173,17 @@ def get_supervisor():
     return _GRAPH
 
 
-def run_supervisor(user_input: str, *, thread_id: str = "default") -> SupervisorState:
+def run_supervisor(
+    user_input: str,
+    *,
+    thread_id: str = "default",
+    router_intent: str | None = None,
+) -> SupervisorState:
     """Supervisor 실행 헬퍼."""
     app = get_supervisor()
     config = {"configurable": {"thread_id": thread_id}}
-    result = app.invoke(
-        {"input": user_input, "thread_id": thread_id},
-        config=config,
-    )
+    payload: SupervisorState = {"input": user_input, "thread_id": thread_id}
+    if router_intent:
+        payload["router_intent_override"] = router_intent
+    result = app.invoke(payload, config=config)
     return result
