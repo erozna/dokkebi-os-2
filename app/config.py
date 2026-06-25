@@ -51,6 +51,11 @@ def ensure_env_from_credentials() -> None:
         os.environ["GEMINI_API_KEY"] = os.environ["GOOGLE_API_KEY"]
 
 
+def goal_api_token() -> str:
+    """POST /goal Bearer 또는 X-API-Key. 비어 있으면 로컬 무인증(127.0.0.1 전제)."""
+    return os.environ.get("GOAL_API_TOKEN", "").strip()
+
+
 def chroma_host() -> str:
     return os.environ.get("CHROMA_HOST", "localhost")
 

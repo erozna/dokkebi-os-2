@@ -2,7 +2,7 @@
   "schema_version": "1.3",
   "description": "도깨비 OS 2.0 프로젝트 인계용 SHARED_BRAIN (기획 섹션)",
   "dokkebi_os_2_planning": {
-    "updated_at": "2026-06-25T10:49:38.102463+00:00",
+    "updated_at": "2026-06-25T11:14:03.241645+00:00",
     "project_path": "D:\\SynologyDrive\\dokkebi\\projects\\shared-brain-day1",
     "repo_url": "https://github.com/erozna/dokkebi-os-2",
     "branch": "main",
@@ -13,15 +13,18 @@
       "milestones": 7,
       "extra_days": [
         "day_4_prompts_hardening",
-        "day_5_fastapi_ci_gitleaks"
+        "day_5_fastapi_ci_gitleaks",
+        "day_6_tavily_memory"
       ],
       "commits": [
         "b8ae5a5",
         "0d29932",
         "e549cc1",
-        "80a3221"
+        "80a3221",
+        "628331e",
+        "aad915f"
       ],
-      "pytest_status": "11/11 green",
+      "pytest_status": "23/23 green",
       "ci_status": "main green",
       "observations": [
         "Level M 자율도가 회귀 없이 2일 연속 작동",
@@ -194,7 +197,7 @@
       }
     ],
     "day4_bot_verification": {
-      "verified_at": "2026-06-25T10:49:38.102463+00:00",
+      "verified_at": "2026-06-25T11:14:03.241645+00:00",
       "pid": 14176,
       "results": {
         "ping": {
@@ -248,29 +251,56 @@
       {
         "item": "web_search MCP Tavily PoC",
         "priority": "high",
-        "estimate": "40m"
+        "estimate": "40m",
+        "status": "done"
       },
       {
-        "item": "메모리 검색 정책 패치 (회고/요약 키워드)",
+        "item": "메모리 검색 정책 패치",
         "priority": "high",
-        "estimate": "30m"
+        "estimate": "30m",
+        "status": "done"
       },
       {
         "item": "reasoner 의도 분류 LLM 전환 검토",
         "priority": "medium",
-        "estimate": "검토만"
+        "estimate": "검토만",
+        "status": "deferred"
       },
       {
         "item": "FastAPI 인증 (단순 토큰)",
         "priority": "medium",
-        "estimate": "20m"
+        "estimate": "20m",
+        "status": "done"
       },
       {
         "item": "LangSmith vs SQLite trace",
         "priority": "low",
-        "estimate": "30m"
+        "estimate": "30m",
+        "status": "deferred"
       }
     ],
+    "day6_completed": {
+      "closed": "2026-06-25",
+      "items": [
+        "Tavily search_web PoC + CI mock",
+        "supervisor web_hits + 메모리 recall 트리거 확장",
+        "GoalResponse.web_hits + output_formatter [Mem0히트]/[웹히트]",
+        "FastAPI GOAL_API_TOKEN Bearer 인증",
+        "docs/ARCHITECTURE.md 플로차트",
+        "scripts/verify_tavily_live.py"
+      ],
+      "commits": [
+        "628331e",
+        "aad915f"
+      ],
+      "tavily_live_verified": "2026-06-25 verify_tavily_live.py ok",
+      "pytest": "24/24"
+    },
+    "week2_next": {
+      "title": "CrewAI 4역할 토론",
+      "blocked_by": "crewai pip 추가 승인 필요",
+      "dod_ref": "roadmap_5weeks.week2"
+    },
     "day4_infra_done": [
       "gh CLI v2.95.0 설치 완료",
       "origin/master 없음 (main only, 삭제 불필요)",

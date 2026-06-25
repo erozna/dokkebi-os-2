@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
-from app.config import ensure_env_from_credentials
+from app.config import ensure_env_from_credentials, goal_api_token
 from app.litellm_router import RouterIntent
 from app.supervisor import run_supervisor
 
@@ -24,6 +24,7 @@ class GoalResponse(BaseModel):
     response: str
     model: str
     memory_hits: int
+    web_hits: int
     elapsed_seconds: float
 
 
@@ -32,8 +33,27 @@ def healthz() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def require_goal_auth(
+    authorization: str | None = Header(None),
+    x_api_key: str | None = Header(None),
+) -> None:
+    expected = goal_api_token()
+    if not expected:
+        return
+    token = ""
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization[7:].strip()
+    elif x_api_key:
+        token = x_api_key.strip()
+    if token != expected:
+        raise HTTPException(status_code=401, detail="Invalid or missing API token")
+
+
 @app.post("/goal", response_model=GoalResponse)
-def goal_post(body: GoalRequest) -> GoalResponse:
+def goal_post(
+    body: GoalRequest,
+    _: None = Depends(require_goal_auth),
+) -> GoalResponse:
     """Telegram /goal과 동일 supervisor 경로."""
     thread_id = body.thread_id or "api-default"
     router_intent: RouterIntent | str | None = body.router_intent
@@ -49,5 +69,6 @@ def goal_post(body: GoalRequest) -> GoalResponse:
         response=result.get("response") or "",
         model=str(result.get("model_used") or ""),
         memory_hits=int(result.get("memory_hits") or 0),
+        web_hits=int(result.get("web_hits") or 0),
         elapsed_seconds=float(result.get("elapsed_sec") or 0.0),
     )

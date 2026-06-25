@@ -199,6 +199,8 @@ def output_formatter(state: SupervisorState) -> SupervisorState:
         f"[응답]\n\n"
         f"{body}\n\n"
         f"[메모리] {state.get('memory_id', '-')}\n"
+        f"[Mem0히트] {state.get('memory_hits', 0)}\n"
+        f"[웹히트] {state.get('web_hits', 0)}\n"
         f"[모델] {state.get('model_used', '-')}\n"
         f"[시간] {state.get('elapsed_sec', 0.0):.1f}s"
     )
