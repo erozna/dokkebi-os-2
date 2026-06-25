@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from app.config import ensure_env_from_credentials, goal_api_token
@@ -12,6 +13,23 @@ from app.supervisor import run_supervisor
 ensure_env_from_credentials()
 
 app = FastAPI(title="DOKKEBI OS API", version="0.3.0")
+
+# Tauri dev webview (127.0.0.1:28720) → API (127.0.0.1:8765) needs CORS.
+# API bind stays 127.0.0.1 only; origins are local desktop dev only.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:28720",
+        "http://localhost:28720",
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "tauri://localhost",
+        "https://tauri.localhost",
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 
 class GoalRequest(BaseModel):

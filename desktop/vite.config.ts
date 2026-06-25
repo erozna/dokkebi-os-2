@@ -14,18 +14,18 @@ export default defineConfig(async () => ({
   clearScreen: false,
   // 2. tauri expects a fixed port, fail if that port is not available
   server: {
-    // 1420 is in Windows Hyper-V excluded range (1383-1482) on some PCs
-    port: 5173,
+    // Avoid Windows Hyper-V block 1383-1482; use uncommon port to reduce clashes
+    port: 28720,
     strictPort: true,
     host: host || "127.0.0.1",
     hmr: host
       ? {
           protocol: "ws",
           host,
-          port: 5174,
+          port: 28721,
         }
       : {
-          port: 5174,
+          port: 28721,
         },
     watch: {
       // 3. tell Vite to ignore watching `src-tauri`
