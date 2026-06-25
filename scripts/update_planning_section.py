@@ -251,7 +251,7 @@ def build_planning() -> dict:
                 "scripts/setup_branch_protection.py",
             ],
             "pytest": "28/28",
-            "pending": ["gh auth 후 branch protection 적용", "실전 /debate Tavily+Opus 비용 검증"],
+            "pending": ["실전 /debate Tavily+Opus 비용 검증"],
         },
         "week2_next": {
             "title": "Week 2 잔여 + Week 3 Tauri 착수",
@@ -275,16 +275,21 @@ def build_planning() -> dict:
             "심판자 = 노이즈 픽션 페르소나, 사장님 본인과 분리",
         ],
         "security_infrastructure": {
-            "nas_lan": "192.168.1.3",
+            "nas_lan": "(private — local secrets only)",
             "nas_credentials": "SHARED_BRAIN 비공개",
-            "tailscale": "100.66.77.127",
+            "tailscale": "(private — local secrets only)",
             "guardian_bot_token": "도깨비 1.0 잔재, 미사용",
-            "credentials_path_pc": r"D:\SynologyDrive\dokkebi_secrets\ALL_CREDENTIALS.json",
+            "credentials_path_pc": "(local path — not in repo)",
+        },
+        "repo_visibility": "public",
+        "branch_protection": {
+            "enabled": True,
+            "required_checks": ["test", "gitleaks-scan"],
         },
         "deferred_decisions": {
             "guardian_bot_cleanup": "Day 5",
             "bot_nas_migration": "Week 2 중반",
-            "branch_protection": "scripts/setup_branch_protection.py (gh auth 필요)",
+            "branch_protection": "완료",
         },
     }
 
