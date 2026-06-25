@@ -10,6 +10,7 @@ __pycache__/
 *.log
 chroma_data/
 .mem0/
+data/
 data/*.db
 *.sqlite
 .pytest_cache/
