@@ -21,9 +21,12 @@ def test_system_prompt_no_emoji_and_korean_persona():
     """이모지 없음 + 한국어 페르소나 핵심 문구 포함."""
     prompt = build_system_prompt("default")
     assert not _EMOJI_RE.search(prompt)
-    assert "사장님" in prompt or "효남금속" in prompt
+    assert "효남금속" in prompt
     assert "이모지" in prompt and "금지" in prompt
-    assert "한국어" in prompt
+    assert "한국어" in prompt or "Magok" in prompt
+    assert "Chroma" in prompt and "Mem0" in prompt and "LiteLLM" in prompt
+    assert "승인 요청" in prompt
+    assert "500자 이상" in prompt
 
 
 def test_intent_branch_in_system_prompt():

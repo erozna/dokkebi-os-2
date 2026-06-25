@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import ensure_env_from_credentials, use_chroma_server
 from app.memory_service import format_memory_results, search_memories
+from app.supervisor import run_supervisor
 
 _MEMORY_CATEGORIES = frozenset({"episodic", "semantic", "procedural", "preference"})
 
@@ -34,7 +35,7 @@ def _parse_memory_args(args: list[str]) -> tuple[str | None, str]:
         category = rest[0].lower()
         rest = rest[1:]
     return category, " ".join(rest).strip()
-from app.supervisor import run_supervisor
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """헬스체크."""
-    await update.message.reply_text("pong 🐺")
+    await update.message.reply_text("pong")
 
 
 async def memory(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
