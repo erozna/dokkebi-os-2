@@ -13,3 +13,33 @@ paths = [
   '''^SHARED_BRAIN\.json$''',
   '''^scripts/update_planning_section\.py$''',
 ]
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-(?:api|sid)\d{2}-[A-Za-z0-9_-]{32,}'''
+keywords = ["sk-ant-"]
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API Key"
+regex = '''sk-(?:proj-)?[A-Za-z0-9_-]{20,}'''
+keywords = ["sk-"]
+
+[[rules]]
+id = "openai-project-api-key"
+description = "OpenAI Project API Key (sk-proj-)"
+regex = '''sk-proj-[A-Za-z0-9_-]{20,}'''
+keywords = ["sk-proj"]
+
+[[rules]]
+id = "groq-api-key"
+description = "Groq API Key"
+regex = '''gsk_[A-Za-z0-9]{40,}'''
+keywords = ["gsk_"]
+
+[[rules]]
+id = "google-api-key"
+description = "Google API Key (Gemini)"
+regex = '''AIza[0-9A-Za-z_-]{35}'''
+keywords = ["AIza"]
