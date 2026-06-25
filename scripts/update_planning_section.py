@@ -19,16 +19,37 @@ def build_planning() -> dict:
         "project_path": str(ROOT),
         "repo_url": "https://github.com/erozna/dokkebi-os-2",
         "branch": "main",
-        "week1_milestone": "7/7 완료 (Day 3 종료)",
+        "week1_milestone": "7/7 + Day 4~5 백엔드 API/CI 완료",
+        "week_1_complete": {
+            "completed_at": "2026-06-25T19:45+09:00",
+            "actual_duration_hours": 3,
+            "milestones": 7,
+            "extra_days": ["day_4_prompts_hardening", "day_5_fastapi_ci_gitleaks"],
+            "commits": ["b8ae5a5", "0d29932", "e549cc1", "80a3221"],
+            "pytest_status": "11/11 green",
+            "ci_status": "main green",
+            "observations": [
+                "Level M 자율도가 회귀 없이 2일 연속 작동",
+                "실제 진행 속도가 5주 로드맵 대비 약 40배 압축",
+                "Week 2~5 시간 추정 재조정 필요 — Day 6 마감 후 회고 세션에서 결정",
+            ],
+        },
         "day3_day4_boundary": {
             "day3_closed": "2026-06-25",
             "day4_opened": "2026-06-25",
-            "note": "Day 3 = 청산+supervisor+E2E. Day 4 = 봇 실전검증 완료 후 HTTP/CI/카테고리 백필.",
+            "day4_closed": "2026-06-25",
+            "note": "Day 3 = 청산+supervisor+E2E. Day 4 = 페르소나+백필+봇검증.",
+        },
+        "day4_day5_boundary": {
+            "day4_closed": "2026-06-25",
+            "day5_opened": "2026-06-25",
+            "day5_closed": "2026-06-25",
+            "note": "Day 5 = FastAPI /goal + CI + gitleaks + MCP 검토.",
         },
         "roadmap_5weeks": {
             "week1": {
                 "title": "백엔드 + 메모리",
-                "status": "Day 3 완료, Day 4 잔여 진행",
+                "status": "Day 5 완료 (FastAPI+CI)",
                 "dod": [
                     "LiteLLM 3모델 게이트웨이 동작",
                     "Chroma 서버 모드 + Mem0 85건",
@@ -160,14 +181,42 @@ def build_planning() -> dict:
                 },
             },
         },
-        "day4_remaining": [
-            "FastAPI /goal HTTP 엔드포인트",
-            "Mem0 카테고리 필터 + 85건 백필",
-            "GitHub Actions CI",
+        "day4_completed": [
+            "prompts.py 페르소나/이모지금지/DOKKEBI 인프라/승인 규칙",
+            "85건 category 백필 (rule only, 미분류 0)",
+            "memory_service category 필터 + /memory --episodic",
+            "봇 재시작 PID 11424, 실전 검증 4/4",
+            "commits: 0d29932 (prompts 보강)",
+        ],
+        "day4_remaining": [],
+        "day5_completed": {
+            "closed": "2026-06-25",
+            "items": [
+                "FastAPI POST /goal (127.0.0.1:8765, CORS 미설정, 외부 노출 0)",
+                "supervisor memory_hits + router_intent override (Tauri 빌딩블록)",
+                "GitHub Actions CI: pytest 11/11 + ruff",
+                "CI=1 call_llm mock + USE_CHROMA_SERVER=0 (Secrets 불필요)",
+                "gitleaks job + Anthropic/OpenAI/Groq/Google API 키 룰",
+                "web_search MCP 검토: Day 6 Tavily PoC → Week 4 Composio",
+            ],
+            "commits": {
+                "day5_main": "e549cc1",
+                "gitleaks_hardening": "80a3221",
+                "ci_status": "main green (both)",
+            },
+            "docs": ["docs/web_search_mcp_review.md"],
+        },
+        "day5_deferred": [
             "LangSmith 연동 (선택)",
-            "web_search MCP 도구 추가",
-            "시스템 프롬프트 페르소나/이모지금지 주입",
-            "첫 도깨비 자기소개 시도",
+            "첫 도깨비 자기소개",
+            "gitleaks 의도적 더미 push 검증 (사장님 수동, 선택)",
+        ],
+        "day6_candidates": [
+            {"item": "web_search MCP Tavily PoC", "priority": "high", "estimate": "40m"},
+            {"item": "메모리 검색 정책 패치 (회고/요약 키워드)", "priority": "high", "estimate": "30m"},
+            {"item": "reasoner 의도 분류 LLM 전환 검토", "priority": "medium", "estimate": "검토만"},
+            {"item": "FastAPI 인증 (단순 토큰)", "priority": "medium", "estimate": "20m"},
+            {"item": "LangSmith vs SQLite trace", "priority": "low", "estimate": "30m"},
         ],
         "day4_infra_done": [
             "gh CLI v2.95.0 설치 완료",
@@ -246,12 +295,12 @@ def main() -> int:
         append_entry(
             path,
             {
-                "entry_id": datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_day4_bot"),
+                "entry_id": datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_day5"),
                 "timestamp": ts,
-                "action": "Day4_봇_실전검증",
-                "actor": "사장님",
-                "task_id": "DAY4_BOT_VERIFY",
-                "payload": planning["day4_bot_verification"],
+                "action": "Day5_완료_FastAPI_CI_gitleaks",
+                "actor": "cursor",
+                "task_id": "DAY5_CLOSE",
+                "payload": planning["day5_completed"],
             },
         )
         print(f"Appended entries: {path}")
