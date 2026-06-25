@@ -33,6 +33,12 @@ regex = '''sk-proj-[A-Za-z0-9_-]{20,}'''
 keywords = ["sk-proj"]
 
 [[rules]]
+id = "github-pat"
+description = "GitHub Personal Access Token"
+regex = '''ghp_[A-Za-z0-9]{36,}'''
+keywords = ["ghp_"]
+
+[[rules]]
 id = "groq-api-key"
 description = "Groq API Key"
 regex = '''gsk_[A-Za-z0-9]{40,}'''

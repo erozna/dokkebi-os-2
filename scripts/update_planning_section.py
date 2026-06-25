@@ -249,6 +249,7 @@ def build_planning() -> dict:
                 "합의안 → SHARED_BRAIN entries",
                 "Telegram /debate",
                 "scripts/setup_branch_protection.py",
+                "repo public + branch protection 2026-06-25",
             ],
             "pytest": "28/28",
             "pending": ["실전 /debate Tavily+Opus 비용 검증"],
