@@ -1,4 +1,4 @@
-"""텔레그램 봇 — /ping, /memory."""
+"""텔레그램 봇 — /ping, /memory, /goal."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import ensure_env_from_credentials, use_chroma_server
 from app.memory_service import format_memory_results, search_memories
+from app.supervisor import run_supervisor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -40,9 +41,25 @@ async def memory(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
         message = format_memory_results(results)
         await update.message.reply_text(message)
-    except Exception as exc:  # noqa: BLE001 — 사용자에게 오류 전달
+    except Exception as exc:  # noqa: BLE001
         logger.exception("memory 검색 실패")
         await update.message.reply_text(f"검색 중 오류: {exc}")
+
+
+async def goal(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Supervisor LangGraph 파이프라인 실행."""
+    text = " ".join(context.args).strip() if context.args else ""
+    if not text:
+        await update.message.reply_text("사용법: /goal <한국어 목표>\n예) /goal 오늘 날씨 알려줘")
+        return
+
+    chat_id = str(update.effective_chat.id) if update.effective_chat else "telegram"
+    try:
+        result = run_supervisor(text, thread_id=f"tg-{chat_id}")
+        await update.message.reply_text(result.get("response") or "응답 없음")
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("/goal 실패")
+        await update.message.reply_text(f"처리 중 오류: {exc}")
 
 
 def main() -> None:
@@ -56,7 +73,8 @@ def main() -> None:
     app = Application.builder().token(token).build()
     app.add_handler(CommandHandler("ping", ping))
     app.add_handler(CommandHandler("memory", memory))
-    logger.info("Telegram bot polling started (/ping, /memory)")
+    app.add_handler(CommandHandler("goal", goal))
+    logger.info("Telegram bot polling started (/ping, /memory, /goal)")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 

@@ -24,20 +24,25 @@ def search_memories(
 ) -> list[dict[str, Any]]:
     """Mem0 시맨틱 검색."""
     memory = get_memory(use_server=use_server)
-    filters: dict[str, str] = {}
-    if user_id:
-        filters["user_id"] = user_id
-
     kwargs: dict[str, Any] = {"limit": limit}
-    if filters:
-        kwargs["filters"] = filters
 
-    raw = memory.search(query, **kwargs)
-    if isinstance(raw, dict):
-        return list(raw.get("results") or [])
-    if isinstance(raw, list):
-        return raw
-    return []
+    if user_id:
+        kwargs["filters"] = {"user_id": user_id}
+        raw = memory.search(query, **kwargs)
+        if isinstance(raw, dict):
+            return list(raw.get("results") or [])
+        return list(raw) if isinstance(raw, list) else []
+
+    # user_id 미지정 시 주요 풀 순회
+    merged: list[dict[str, Any]] = []
+    for uid in ("shared-brain-migration", "supervisor-default"):
+        kwargs["filters"] = {"user_id": uid}
+        raw = memory.search(query, **kwargs)
+        rows = raw.get("results") if isinstance(raw, dict) else raw
+        if isinstance(rows, list):
+            merged.extend(rows)
+    merged.sort(key=lambda x: float(x.get("score") or 0), reverse=True)
+    return merged[:limit]
 
 
 def format_memory_results(results: list[dict[str, Any]]) -> str:

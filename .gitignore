@@ -1,9 +1,16 @@
 .env
+.env*
+!.env.example
+*credentials*.json
+*.token
 .venv/
 venv/
 __pycache__/
 *.pyc
+*.log
 chroma_data/
 .mem0/
+data/*.db
+*.sqlite
 .pytest_cache/
 .DS_Store
