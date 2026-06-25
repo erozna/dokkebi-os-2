@@ -41,6 +41,8 @@ def ensure_env_from_credentials() -> None:
         or (creds.get("google") or {}).get("gemini_api_key"),
         "TELEGRAM_BOT_TOKEN": creds.get("TELEGRAM_BOT_TOKEN")
         or (creds.get("telegram") or {}).get("bot_token"),
+        "TAVILY_API_KEY": creds.get("TAVILY_API_KEY")
+        or (creds.get("tavily") or {}).get("api_key"),
     }
     for key, value in mapping.items():
         if value and not os.environ.get(key):

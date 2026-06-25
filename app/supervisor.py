@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import sqlite3
 import time
 from datetime import datetime, timezone
@@ -15,10 +16,15 @@ from app.litellm_router import call_llm, map_parser_intent
 from app.prompts import build_system_prompt
 from app.mem0_router import save_to_mem0
 from app.memory_service import search_memories
+from app.tools.web_search import WebSearchError, search_web
 
 CHECKPOINT_DB = ROOT / "data" / "supervisor_state.db"
 _CHECKPOINT_CONN: sqlite3.Connection | None = None
 _GRAPH = None
+
+_WEB_KEYWORDS = ("검색", "찾아", "최신", "뉴스", "알아봐")
+_MEMORY_KEYWORDS = ("이전", "회고", "요약", "정리", "지금까지")
+_DAY_PATTERN = re.compile(r"Day\s*\d+", re.IGNORECASE)
 
 
 class SupervisorState(TypedDict, total=False):
@@ -33,6 +39,7 @@ class SupervisorState(TypedDict, total=False):
     elapsed_sec: float
     thread_id: str
     memory_hits: int
+    web_hits: int
     router_intent_override: str
 
 
@@ -50,6 +57,51 @@ def _classify_intent(text: str) -> str:
     if any(k in text for k in search_keys):
         return "search"
     return "command"
+
+
+def _needs_web_search(
+    parser_intent: str,
+    user_input: str,
+    router_intent: str,
+) -> bool:
+    """웹 검색 트리거."""
+    if router_intent == "search" or parser_intent == "search":
+        return True
+    return any(k in user_input for k in _WEB_KEYWORDS)
+
+
+def _needs_memory_recall(router_intent: str, user_input: str) -> bool:
+    """Mem0 검색 트리거 (Task 2)."""
+    if router_intent in ("summary", "recall", "review"):
+        return True
+    if any(k in user_input for k in _MEMORY_KEYWORDS):
+        return True
+    return bool(_DAY_PATTERN.search(user_input))
+
+
+def _llm_intent(router_intent: str) -> str:
+    """LiteLLM 라우터용 intent (search/recall/review → short/summary)."""
+    if router_intent == "search":
+        return "short"
+    if router_intent in ("recall", "review"):
+        return "summary"
+    return router_intent
+
+
+def _format_web_context(data: dict) -> str:
+    """검색 결과 프롬프트 블록."""
+    lines: list[str] = []
+    answer = data.get("answer")
+    if answer:
+        lines.append(f"요약: {answer}")
+    for item in data.get("results") or []:
+        if not isinstance(item, dict):
+            continue
+        title = item.get("title") or ""
+        url = item.get("url") or ""
+        content = (item.get("content") or "")[:200]
+        lines.append(f"- {title} ({url}): {content}")
+    return "\n".join(lines)
 
 
 def input_parser(state: SupervisorState) -> SupervisorState:
@@ -73,25 +125,41 @@ def reasoner(state: SupervisorState) -> SupervisorState:
     if override and override != "default":
         router_intent = override  # type: ignore[assignment]
     else:
-        router_intent = map_parser_intent(parser_intent, user_input)
+        router_intent = map_parser_intent(parser_intent, user_input)  # type: ignore[assignment]
 
     prompt = user_input
     memory_hits = 0
-    # 요약·이전 대화: Mem0 검색 컨텍스트 주입
+    web_hits = 0
     thread_id = state.get("thread_id") or "supervisor-default"
-    if router_intent == "summary" or "이전" in user_input:
+
+    if _needs_web_search(parser_intent, user_input, str(router_intent)):
+        try:
+            web_data = search_web(user_input, max_results=5)
+            web_hits = len(web_data.get("results") or [])
+            if web_hits or web_data.get("answer"):
+                ctx = _format_web_context(web_data)
+                prompt = f"다음 웹 검색 결과를 참고해 답하세요.\n{ctx}\n\n질문: {user_input}"
+        except WebSearchError:
+            web_hits = 0
+
+    if _needs_memory_recall(str(router_intent), user_input):
         hits = search_memories(user_input, limit=3, user_id=thread_id)
         memory_hits = len(hits)
         if hits:
             ctx = "\n".join(
                 f"- {(h.get('memory') or h.get('data') or '')[:200]}" for h in hits
             )
-            prompt = f"다음 기억을 참고해 요약하세요.\n{ctx}\n\n질문: {user_input}"
+            prefix = "다음 기억을 참고해 답하세요."
+            if prompt != user_input:
+                prompt = f"{prompt}\n\n[Mem0]\n{ctx}"
+            else:
+                prompt = f"{prefix}\n{ctx}\n\n질문: {user_input}"
 
+    llm_intent = _llm_intent(str(router_intent))
     response, model_used = call_llm(
         prompt,
-        router_intent=router_intent,
-        system_prompt=build_system_prompt(router_intent),
+        router_intent=llm_intent,  # type: ignore[arg-type]
+        system_prompt=build_system_prompt(llm_intent),
     )
     elapsed = time.perf_counter() - t0
     return {
@@ -100,6 +168,7 @@ def reasoner(state: SupervisorState) -> SupervisorState:
         "model_used": model_used,
         "elapsed_sec": elapsed,
         "memory_hits": memory_hits,
+        "web_hits": web_hits,
     }
 
 
