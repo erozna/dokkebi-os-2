@@ -77,6 +77,14 @@ def is_structured_data(text: str) -> bool:
 
 def classify_category(text: str) -> Category:
     """episodic / semantic / procedural 자동 분류."""
+    ruled = classify_category_rule(text)
+    if ruled is not None:
+        return ruled
+    return "episodic"
+
+
+def classify_category_rule(text: str) -> Category | None:
+    """규칙 매칭 시 카테고리, 미매칭 시 None (LLM fallback 대상)."""
     lowered = (text or "").lower()
 
     if any(key in lowered for key in _PROCEDURAL):
@@ -89,7 +97,7 @@ def classify_category(text: str) -> Category:
     if is_structured_data(text):
         return "procedural"
 
-    return "episodic"
+    return None
 
 
 def build_metadata(

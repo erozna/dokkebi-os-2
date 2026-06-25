@@ -32,7 +32,7 @@ def mock_llm():
 def test_goal_weather_response_and_memory(mock_llm):
     """시나리오1: 날씨 질의 → 응답 + Mem0 저장."""
     result = run_supervisor("오늘 날씨 알려줘", thread_id="e2e-weather")
-    assert "🐺 도깨비 응답" in result["response"]
+    assert "[응답]" in result["response"]
     assert result.get("memory_id") or result.get("response")
 
 

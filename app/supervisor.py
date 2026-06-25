@@ -13,6 +13,7 @@ from langgraph.graph import END, START, StateGraph
 
 from app.config import ROOT, ensure_env_from_credentials
 from app.litellm_router import call_llm, map_parser_intent
+from app.prompts import build_system_prompt
 from app.mem0_router import save_to_mem0
 from app.memory_service import search_memories
 
@@ -80,7 +81,11 @@ def reasoner(state: SupervisorState) -> SupervisorState:
             )
             prompt = f"다음 기억을 참고해 요약하세요.\n{ctx}\n\n질문: {user_input}"
 
-    response, model_used = call_llm(prompt, router_intent=router_intent)
+    response, model_used = call_llm(
+        prompt,
+        router_intent=router_intent,
+        system_prompt=build_system_prompt(router_intent),
+    )
     elapsed = time.perf_counter() - t0
     return {
         **state,
@@ -114,11 +119,11 @@ def output_formatter(state: SupervisorState) -> SupervisorState:
     """노드4: 한국어 최종 응답 포맷."""
     body = state.get("response") or ""
     formatted = (
-        f"🐺 도깨비 응답\n\n"
+        f"[응답]\n\n"
         f"{body}\n\n"
-        f"💾 memory_id: {state.get('memory_id', '-')}\n"
-        f"🤖 사용 모델: {state.get('model_used', '-')}\n"
-        f"⏱ 처리 시간: {state.get('elapsed_sec', 0.0):.1f}s"
+        f"[메모리] {state.get('memory_id', '-')}\n"
+        f"[모델] {state.get('model_used', '-')}\n"
+        f"[시간] {state.get('elapsed_sec', 0.0):.1f}s"
     )
     return {**state, "response": formatted}
 

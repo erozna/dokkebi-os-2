@@ -15,6 +15,25 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import ensure_env_from_credentials, use_chroma_server
 from app.memory_service import format_memory_results, search_memories
+
+_MEMORY_CATEGORIES = frozenset({"episodic", "semantic", "procedural", "preference"})
+
+
+def _parse_memory_args(args: list[str]) -> tuple[str | None, str]:
+    """--episodic 등 카테고리 플래그와 검색어 분리."""
+    if not args:
+        return None, ""
+    category: str | None = None
+    rest = list(args)
+    if rest[0].startswith("--"):
+        flag = rest[0].lstrip("-").lower()
+        if flag in _MEMORY_CATEGORIES:
+            category = flag
+            rest = rest[1:]
+    elif rest[0].lower() in _MEMORY_CATEGORIES:
+        category = rest[0].lower()
+        rest = rest[1:]
+    return category, " ".join(rest).strip()
 from app.supervisor import run_supervisor
 
 logging.basicConfig(level=logging.INFO)
@@ -28,18 +47,24 @@ async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def memory(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Mem0 기억 검색."""
-    query = " ".join(context.args).strip() if context.args else ""
+    category, query = _parse_memory_args(list(context.args or []))
     if not query:
-        await update.message.reply_text("사용법: /memory <검색어>\n예) /memory 헌법")
+        await update.message.reply_text(
+            "사용법: /memory <검색어>\n"
+            "       /memory --episodic <검색어>\n"
+            "예) /memory 헌법\n"
+            "예) /memory --semantic 선호"
+        )
         return
 
     try:
         results = search_memories(
             query,
+            category=category,
             limit=5,
             use_server=use_chroma_server(),
         )
-        message = format_memory_results(results)
+        message = format_memory_results(results, category=category)
         await update.message.reply_text(message)
     except Exception as exc:  # noqa: BLE001
         logger.exception("memory 검색 실패")
