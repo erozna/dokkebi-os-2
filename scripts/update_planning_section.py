@@ -235,7 +235,7 @@ def build_planning() -> dict:
                 "docs/ARCHITECTURE.md 플로차트",
                 "scripts/verify_tavily_live.py",
             ],
-            "commits": ["628331e", "aad915f"],
+            "commits": ["628331e", "aad915f", "7604bde"],
             "tavily_live_verified": "2026-06-25 verify_tavily_live.py ok",
             "pytest": "24/24",
         },
