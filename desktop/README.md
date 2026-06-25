@@ -10,6 +10,8 @@ Tauri 2 + React + TypeScript + CopilotKit provider + 한국어 i18n.
 
 ## 개발
 
+Windows에서 Hyper-V가 **1383–1482** 포트를 잡아두는 PC가 있어, Vite는 **5173**을 씁니다.
+
 ```powershell
 cd desktop
 npm install
