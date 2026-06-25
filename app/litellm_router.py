@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import Literal
 
 from litellm import completion
@@ -28,12 +29,18 @@ _FALLBACK_CHAIN = (
     "groq/llama-3.3-70b-versatile",
 )
 
+_DAY_PATTERN = re.compile(r"Day\s*\d+", re.IGNORECASE)
+
 
 def map_parser_intent(parser_intent: str, user_input: str) -> RouterIntent:
     """supervisor input_parser 의도 → 라우터 의도."""
     text = (user_input or "").lower()
     if "요약" in user_input or "summary" in text:
         return "summary"
+    if "회고" in user_input or "지금까지" in user_input:
+        return "recall"  # type: ignore[return-value]
+    if _DAY_PATTERN.search(user_input):
+        return "review"  # type: ignore[return-value]
     if parser_intent == "code":
         return "code"
     if parser_intent == "search":

@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from typing import Literal
 
-RouterIntent = Literal["code", "summary", "short", "bulk", "verification", "default"]
+RouterIntent = Literal[
+    "code", "summary", "short", "bulk", "verification", "default",
+    "search", "recall", "review",
+]
 
 _BASE_PERSONA = """당신은 도깨비 OS 2.0의 AI 어시스턴트입니다.
 사용자는 효남금속(주) 1인 기업가(사장님)이며, 한국어 Magok 거주, 5인 가주입니다.
@@ -41,6 +44,8 @@ _BASE_PERSONA = """당신은 도깨비 OS 2.0의 AI 어시스턴트입니다.
 _INTENT_HINTS: dict[str, str] = {
     "code": "코드 요청: 실행 가능한 코드 위주, 주석은 한국어로 짧게.",
     "summary": "요약 요청: Mem0 컨텍스트를 우선 반영, 핵심만.",
+    "recall": "회고/이전 맥락: Mem0 기억을 우선 반영해 진행 상황을 정리.",
+    "review": "Day N 회고: 기억·로그 맥락을 바탕으로 짧게 점검.",
     "short": "짧은 답변: 3문장 이내.",
     "bulk": "대량 처리: 구조화된 목록.",
     "verification": "검증: 사실·일관성 위주, 추측 최소화.",
