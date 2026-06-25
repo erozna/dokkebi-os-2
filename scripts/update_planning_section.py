@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -20,160 +19,242 @@ def build_planning() -> dict:
         "project_path": str(ROOT),
         "repo_url": "https://github.com/erozna/dokkebi-os-2",
         "branch": "main",
-        "week1_milestone": "7/7 완료 (Day 3 기준)",
+        "week1_milestone": "7/7 완료 (Day 3 종료)",
+        "day3_day4_boundary": {
+            "day3_closed": "2026-06-25",
+            "day4_opened": "2026-06-25",
+            "note": "Day 3 = 청산+supervisor+E2E. Day 4 = 봇 실전검증 완료 후 HTTP/CI/카테고리 백필.",
+        },
         "roadmap_5weeks": {
             "week1": {
                 "title": "백엔드 + 메모리",
-                "status": "Day 3 완료, Day 4 진행 중",
-                "scope": [
-                    "LiteLLM 게이트웨이",
-                    "Mem0 + ChromaDB 서버 모드",
-                    "LangGraph Supervisor",
-                    "Telegram bot (/ping, /memory, /goal)",
+                "status": "Day 3 완료, Day 4 잔여 진행",
+                "dod": [
+                    "LiteLLM 3모델 게이트웨이 동작",
+                    "Chroma 서버 모드 + Mem0 85건",
+                    "LangGraph Supervisor 4노드 + SQLite 체크포인터",
+                    "Telegram /ping /memory /goal 실전 검증",
+                    "보안 점검 + main 브랜치",
+                    "E2E 테스트 5/5",
+                    "Week 1 마일스톤 7/7",
                 ],
             },
             "week2": {
                 "title": "CrewAI 4역할 토론",
-                "roles": ["장인", "심판자", "검사관", "재판장"],
+                "dod": [
+                    "장인/심판자/검사관/재판장 에이전트 구현",
+                    "토론 루프 LangGraph 연동",
+                    "심판자 노이즈 픽션 페르소나 분리",
+                    "합의안 → SHARED_BRAIN 자동 기록",
+                    "Branch protection 설정",
+                ],
             },
             "week3": {
                 "title": "Docker 샌드박스 + Tauri UI 착수",
+                "dod": [
+                    "코드 실행 샌드박스 컨테이너",
+                    "Tauri 2.0 프로젝트 스캐폴드",
+                    "CopilotKit + React 한국어 i18n",
+                    "봇 NAS 이전 (중반)",
+                ],
             },
             "week4": {
                 "title": "Tauri UI 완성 + Composio MCP",
+                "dod": [
+                    "Tauri 데스크톱 UI MVP",
+                    "FastAPI 백엔드 연동",
+                    "Composio MCP 도구 통합",
+                    "web_search 등 외부 도구 연결",
+                ],
             },
             "week5": {
-                "title": "Self-Harness 진화 루프 + 사장님 도메인 통합",
+                "title": "Self-Harness 진화 루프 + 도메인 통합",
+                "dod": [
+                    "Self-Harness KPI 5개 운영",
+                    "SHOP_ENGINE 메모리 연동",
+                    "NAS 야간 cron Self-Harness",
+                    "사장님 도메인(효남금속) 워크플로 통합",
+                ],
             },
         },
         "stack_8": [
+            "Tauri 2.0",
+            "CopilotKit",
+            "LangGraph 0.4",
+            "CrewAI",
+            "Mem0 + ChromaDB",
+            "LiteLLM",
+            "Composio",
+            "FastAPI",
+        ],
+        "stack_8_detail": [
             {"name": "Tauri 2.0", "role": "데스크톱 UI"},
-            {"name": "CopilotKit + React + 한국어 i18n", "role": "UI 빌딩 블록"},
+            {"name": "CopilotKit", "role": "React UI 빌딩 블록 + 한국어 i18n"},
             {"name": "LangGraph 0.4", "role": "오케스트레이션, SQLite 체크포인터"},
             {"name": "CrewAI", "role": "멀티 에이전트 토론 (AutoGen 대체)"},
             {"name": "Mem0 + ChromaDB", "role": "영구 메모리, Chroma 서버 모드"},
             {"name": "LiteLLM", "role": "모델 게이트웨이 (Claude/Gemini/Groq)"},
             {"name": "Composio", "role": "MCP 도구 통합"},
-            {"name": "FastAPI", "role": "백엔드"},
+            {"name": "FastAPI", "role": "백엔드 API"},
         ],
         "infrastructure_split": {
-            "pc_docker_desktop": {
-                "purpose": "개발/테스트",
-                "services": [
-                    "개발용 ChromaDB",
-                    "Mem0 dev_test",
-                    "실행 샌드박스",
-                ],
-            },
-            "nas_ds920_docker": {
-                "purpose": "운영",
-                "services": [
-                    "운영 ChromaDB",
-                    "Mem0 daepyo_real",
-                    "Telegram 봇",
-                    "Self-Harness 야간 cron",
-                ],
-            },
-            "cursor_pro": {
-                "purpose": "코딩 도구",
-                "note": "컨트롤 타워 아님",
-            },
+            "pc_docker_desktop": "개발/테스트 (Chroma dev, Mem0 dev_test, 실행 샌드박스)",
+            "nas_ds920_docker": "운영 (Chroma prod, Mem0 daepyo_real, Telegram 봇, Self-Harness cron)",
+            "cursor_pro": "코딩 도구 (컨트롤 타워 아님)",
         },
         "crew_personas_week2": {
-            "장인": {
-                "model": "Claude Opus",
-                "role": "실용 코더, 최종 책임",
-            },
+            "장인": {"model": "Claude Opus", "role": "실용 코더, 최종 책임"},
             "심판자": {
                 "model": "Gemini Flash (무료)",
                 "role": "사장님 노이즈 픽션 페르소나, 가차없는 비판",
             },
-            "검사관": {
-                "model": "Groq Llama 3.3 (무료)",
-                "role": "테스트 케이스 작성",
-            },
-            "재판장": {
-                "model": "Claude Sonnet",
-                "role": "합의안 도출",
-            },
+            "검사관": {"model": "Groq Llama 3.3 (무료)", "role": "테스트 케이스 작성"},
+            "재판장": {"model": "Claude Sonnet", "role": "합의안 도출"},
         },
         "day1_completed": [
-            "API 키 3개 (Anthropic/Google/Groq)",
-            ".env 설정",
-            "requirements.txt + venv",
-            "docker-compose.yml",
-            "LiteLLM 3모델 hello-world",
+            "API 키 3개, .env, requirements.txt, venv",
+            "docker-compose.yml, LiteLLM 3모델 hello",
         ],
         "day2_completed": [
-            "Chroma 서버 모드 (chromadb/chroma:1.5.9)",
-            "embedded 85건 → 서버 마이그레이션",
-            "Mem0 라우터 (infer=False/True 하이브리드)",
-            "Telegram /ping, /memory",
-            "reboot_test 무손실 검증",
+            "Chroma 1.5.9 서버, 85건 마이그레이션",
+            "Mem0 라우터 infer 하이브리드",
+            "Telegram /ping /memory, reboot_test",
         ],
         "day3_completed": [
-            "중복 메모리 88건 청산 → 85건 유지",
-            "보안 점검 통과 (.env/API키 커밋 노출 없음)",
-            "master → main 브랜치 전환",
-            "LangGraph supervisor 4노드",
-            "LiteLLM router (claude→gemini→groq 폴백)",
-            "Telegram /goal",
-            "E2E 테스트 5/5",
+            "중복 88건 청산 → 85건",
+            "보안 점검 통과",
+            "master→main, LangGraph supervisor",
+            "LiteLLM router, Telegram /goal 코드",
+            "E2E 5/5",
         ],
-        "day4_in_progress": [
-            "봇 실전 검증 (사장님 진행, PID 14176)",
-            "gh CLI 설치 + master 원격 삭제",
+        "day3_findings": [
+            {
+                "id": "F001",
+                "issue": "카테고리 미분류 85건 백필 필요",
+                "action": "Mem0 metadata.category episodic/semantic/procedural 일괄 태깅 스크립트",
+            },
+            {
+                "id": "F002",
+                "issue": "도깨비 도구 부재",
+                "action": "web_search MCP 추가 필요",
+            },
+            {
+                "id": "F003",
+                "issue": "시스템 프롬프트 미정의",
+                "action": "사장님 페르소나 + 이모지 금지 규칙 supervisor/litellm에 주입",
+            },
+        ],
+        "day4_bot_verification": {
+            "verified_at": now,
+            "pid": 14176,
+            "results": {
+                "ping": {"status": "ok", "note": "pong 응답 확인"},
+                "memory": {
+                    "status": "ok",
+                    "note": "검색 동작, 카테고리 백필 필요",
+                },
+                "goal": {
+                    "status": "ok",
+                    "model": "anthropic/claude-sonnet-4-6",
+                    "latency_sec": 5.3,
+                },
+            },
+        },
+        "day4_remaining": [
             "FastAPI /goal HTTP 엔드포인트",
-            "Mem0 카테고리 필터 (/memory --episodic 등)",
+            "Mem0 카테고리 필터 + 85건 백필",
             "GitHub Actions CI",
             "LangSmith 연동 (선택)",
+            "web_search MCP 도구 추가",
+            "시스템 프롬프트 페르소나/이모지금지 주입",
+            "첫 도깨비 자기소개 시도",
         ],
-        "day5_7_remaining": [
-            "Self-Harness 평가 KPI 5개 정의",
-            "SHOP_ENGINE 메모리 연동",
-            "Week 2 CrewAI 준비",
+        "day4_infra_done": [
+            "gh CLI v2.95.0 설치 완료",
+            "origin/master 없음 (main only, 삭제 불필요)",
+            "gh auth login은 사장님 계정으로 별도 필요",
         ],
-        "boss_core_decisions": [
-            "도깨비는 독립 데스크톱 앱(Tauri), Cursor/Claude는 백엔드로만 호출",
-            "taOS 미사용, 자체 조립(라이브러리 8개)",
-            "한국어 UI 우선, 영어 코드",
-            "백엔드 + Telegram bot 먼저, Tauri UI는 Week 3",
-            "가성비/시간/ROI 3축 판단",
+        "boss_core_decisions_9": [
+            "도깨비 = 독립 Tauri 데스크톱 앱, Cursor/Claude는 백엔드 호출만",
+            "taOS 미사용, 확정 스택 8개 자체 조립",
+            "한국어 UI 우선, 코드는 영어",
+            "백엔드 + Telegram 먼저, Tauri는 Week 3",
+            "가성비/시간/ROI 3축 의사결정",
+            "AutoGen 대신 CrewAI 채택",
+            "Mem0+Chroma 서버 모드로 운영/개발 분리",
+            "응답 이모지 금지 (봇 UI 제외 최소화)",
+            "심판자 = 노이즈 픽션 페르소나, 사장님 본인과 분리",
         ],
         "security_infrastructure": {
             "nas_lan": "192.168.1.3",
-            "nas_credentials": "SHARED_BRAIN 비공개 (별도 보관)",
+            "nas_credentials": "SHARED_BRAIN 비공개",
             "tailscale": "100.66.77.127",
-            "guardian_bot_token": "도깨비 1.0 잔재, 사용 안 함",
-            "sync_note": ".env / ALL_CREDENTIALS.json 동기화 폴더 위치 보안 점검 필요",
+            "guardian_bot_token": "도깨비 1.0 잔재, 미사용",
             "credentials_path_pc": r"D:\SynologyDrive\dokkebi_secrets\ALL_CREDENTIALS.json",
         },
         "deferred_decisions": {
             "guardian_bot_cleanup": "Day 5",
             "bot_nas_migration": "Week 2 중반",
             "branch_protection": "Week 2 시작 전",
-            "github_default_branch_main": "사장님 Settings에서 main으로 변경 후 master 삭제",
         },
     }
 
 
+def append_entry(path: Path, entry: dict) -> None:
+    """entries 배열에 Day 기록 추가 (정본용)."""
+    if not path.is_file():
+        return
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data.setdefault("entries", []).append(entry)
+    if "총_항목수" in data:
+        data["총_항목수"] = len(data["entries"])
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def apply_to_file(path: Path) -> None:
-    """기존 SHARED_BRAIN에 planning 섹션 병합."""
+    """planning 섹션 병합."""
     if path.is_file():
         data = json.loads(path.read_text(encoding="utf-8"))
     else:
         data = {
             "schema_version": "1.3",
-            "description": "도깨비 OS 2.0 프로젝트 인계용 SHARED_BRAIN (기획 섹션)",
+            "description": "도깨비 OS 2.0 프로젝트 인계용 SHARED_BRAIN",
         }
     data["dokkebi_os_2_planning"] = build_planning()
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Updated: {path}")
+    print(f"Updated planning: {path}")
 
 
 def main() -> int:
-    apply_to_file(CANONICAL)
+    planning = build_planning()
     apply_to_file(PROJECT_COPY)
+    apply_to_file(CANONICAL)
+
+    ts = datetime.now(timezone.utc).isoformat()
+    for path in (CANONICAL,):
+        append_entry(
+            path,
+            {
+                "entry_id": datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_day3_findings"),
+                "timestamp": ts,
+                "action": "Day3_발견점_3건",
+                "actor": "cursor",
+                "task_id": "DAY3_FINDINGS",
+                "payload": {"findings": planning["day3_findings"]},
+            },
+        )
+        append_entry(
+            path,
+            {
+                "entry_id": datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_day4_bot"),
+                "timestamp": ts,
+                "action": "Day4_봇_실전검증",
+                "actor": "사장님",
+                "task_id": "DAY4_BOT_VERIFY",
+                "payload": planning["day4_bot_verification"],
+            },
+        )
+        print(f"Appended entries: {path}")
     return 0
 
 
