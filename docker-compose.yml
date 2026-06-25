@@ -1,0 +1,25 @@
+services:
+  chromadb:
+    image: chromadb/chroma:1.5.9
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/data
+    environment:
+      IS_PERSISTENT: "TRUE"
+      ANONYMIZED_TELEMETRY: "FALSE"
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file: .env
+    environment:
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: "8000"
+    depends_on:
+      - chromadb
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080
+
+volumes:
+  chroma_data:
