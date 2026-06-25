@@ -14,9 +14,12 @@ flowchart TB
     subgraph supervisor [LangGraph Supervisor - 구현됨]
         IP[input_parser<br/>키워드 의도]
         R[reasoner<br/>LiteLLM 1회]
+        CD[crew_debater<br/>CrewAI 4역할]
         MW[memory_writer<br/>Mem0 저장]
         OF[output_formatter<br/>라벨 응답]
-        IP --> R --> MW --> OF
+        IP -->|일반| R --> MW
+        IP -->|토론/debate| CD --> MW
+        MW --> OF
     end
 
     subgraph context [컨텍스트 주입 - Day 6]
@@ -62,14 +65,38 @@ flowchart LR
 
 | 구간 | 내용 | 상태 |
 |------|------|------|
-| CrewAI 토론 | 장인/심판자/검사관/재판장 | 미착수 |
+| CrewAI 토론 | 장인/심판자/검사관/재판장 | **구현됨** (`/debate`, 토론 키워드) |
 | Tauri UI | CopilotKit + React | Week 3 |
 | Composio | MCP 통합 | Week 4 |
 | Self-Harness | KPI + NAS cron | Week 5 |
 
+## CrewAI 토론 시퀀스 (Week 2)
+
+```mermaid
+sequenceDiagram
+    participant U as 사용자
+    participant LG as LangGraph
+    participant C as CrewAI Crew
+    participant J as 장인
+    participant S as 심판자
+    participant I as 검사관
+    participant CH as 재판장
+    participant SB as SHARED_BRAIN
+
+    U->>LG: /debate 또는 토론 키워드
+    LG->>C: kickoff(topic)
+    C->>J: 구현안 제시
+    J->>S: 비판 (픽션 페르소나)
+    S->>I: 테스트 시나리오
+    I->>CH: 합의안 도출
+    CH->>LG: consensus
+    LG->>SB: entries 기록
+    LG->>U: [CrewAI] + [SHARED_BRAIN] id
+```
+
 ## 무엇이 **아직** 그려지지 않았나
 
-- CrewAI 노드별 프롬프트·토론 루프 상세 시퀀스
+- ~~CrewAI 노드별 프롬프트·토론 루프 상세 시퀀스~~ → 위 시퀀스 + `app/crew/`
 - Tauri 화면 와이어프레임
 - Self-Harness KPI 5개 정의
 - ~~FastAPI 인증~~ → `GOAL_API_TOKEN` Bearer / `X-API-Key` (설정 시만)

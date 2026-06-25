@@ -1,4 +1,4 @@
-"""텔레그램 봇 — /ping, /memory, /goal."""
+"""텔레그램 봇 — /ping, /memory, /goal, /debate."""
 
 from __future__ import annotations
 
@@ -88,6 +88,28 @@ async def goal(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f"처리 중 오류: {exc}")
 
 
+async def debate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """CrewAI 4역할 토론."""
+    text = " ".join(context.args).strip() if context.args else ""
+    if not text:
+        await update.message.reply_text(
+            "사용법: /debate <주제>\n예) /debate Week 2 CrewAI 착수 순서"
+        )
+        return
+
+    chat_id = str(update.effective_chat.id) if update.effective_chat else "telegram"
+    try:
+        result = run_supervisor(
+            text,
+            thread_id=f"tg-{chat_id}",
+            router_intent="debate",
+        )
+        await update.message.reply_text(result.get("response") or "응답 없음")
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("/debate 실패")
+        await update.message.reply_text(f"처리 중 오류: {exc}")
+
+
 def main() -> None:
     """폴링 봇 기동."""
     ensure_env_from_credentials()
@@ -100,7 +122,8 @@ def main() -> None:
     app.add_handler(CommandHandler("ping", ping))
     app.add_handler(CommandHandler("memory", memory))
     app.add_handler(CommandHandler("goal", goal))
-    logger.info("Telegram bot polling started (/ping, /memory, /goal)")
+    app.add_handler(CommandHandler("debate", debate))
+    logger.info("Telegram bot polling started (/ping, /memory, /goal, /debate)")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 

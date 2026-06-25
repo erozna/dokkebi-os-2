@@ -12,6 +12,8 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, START, StateGraph
 
 from app.config import ROOT, ensure_env_from_credentials
+from app.crew.brain_writer import record_consensus
+from app.crew.debate import run_crew_debate
 from app.litellm_router import call_llm, map_parser_intent
 from app.prompts import build_system_prompt
 from app.mem0_router import save_to_mem0
@@ -24,6 +26,7 @@ _GRAPH = None
 
 _WEB_KEYWORDS = ("검색", "찾아", "최신", "뉴스", "알아봐")
 _MEMORY_KEYWORDS = ("이전", "회고", "요약", "정리", "지금까지")
+_DEBATE_KEYWORDS = ("토론", "합의", "검토해", "debate", "crew", "4역할")
 _DAY_PATTERN = re.compile(r"Day\s*\d+", re.IGNORECASE)
 
 
@@ -41,6 +44,9 @@ class SupervisorState(TypedDict, total=False):
     memory_hits: int
     web_hits: int
     router_intent_override: str
+    debate_mode: bool
+    crew_transcript: str
+    brain_entry_id: str
 
 
 def _classify_intent(text: str) -> str:
@@ -77,6 +83,30 @@ def _needs_memory_recall(router_intent: str, user_input: str) -> bool:
     if any(k in user_input for k in _MEMORY_KEYWORDS):
         return True
     return bool(_DAY_PATTERN.search(user_input))
+
+
+def _resolve_router_intent(state: SupervisorState) -> str:
+    override = state.get("router_intent_override")
+    if override and override != "default":
+        return str(override)
+    parser_intent = state.get("intent") or "command"
+    user_input = state.get("input") or ""
+    return str(map_parser_intent(parser_intent, user_input))
+
+
+def _needs_crew_debate(router_intent: str, user_input: str) -> bool:
+    """CrewAI 4역할 토론 트리거."""
+    if router_intent == "debate":
+        return True
+    return any(k in user_input for k in _DEBATE_KEYWORDS)
+
+
+def _route_after_parser(state: SupervisorState) -> str:
+    user_input = state.get("input") or ""
+    router_intent = _resolve_router_intent(state)
+    if _needs_crew_debate(router_intent, user_input):
+        return "crew_debater"
+    return "reasoner"
 
 
 def _llm_intent(router_intent: str) -> str:
@@ -172,6 +202,31 @@ def reasoner(state: SupervisorState) -> SupervisorState:
     }
 
 
+def crew_debater(state: SupervisorState) -> SupervisorState:
+    """CrewAI 4역할 순차 토론 + SHARED_BRAIN 합의 기록."""
+    t0 = time.perf_counter()
+    user_input = state.get("input") or ""
+    debate = run_crew_debate(user_input)
+    entry_id = record_consensus(
+        debate.topic,
+        debate.consensus,
+        transcript=debate.transcript,
+    )
+    models = debate.models_used
+    model_label = "crewai:" + (models[0] if models else "multi")
+    return {
+        **state,
+        "response": debate.consensus,
+        "crew_transcript": debate.transcript,
+        "brain_entry_id": entry_id,
+        "debate_mode": True,
+        "model_used": model_label,
+        "elapsed_sec": time.perf_counter() - t0,
+        "memory_hits": 0,
+        "web_hits": 0,
+    }
+
+
 def memory_writer(state: SupervisorState) -> SupervisorState:
     """노드3: 응답을 Mem0에 저장."""
     ensure_env_from_credentials()
@@ -180,7 +235,11 @@ def memory_writer(state: SupervisorState) -> SupervisorState:
     saved = save_to_mem0(
         text,
         user_id=user_id,
-        extra_metadata={"source": "supervisor", "intent": state.get("intent", "")},
+        extra_metadata={
+            "source": "crew_debate" if state.get("debate_mode") else "supervisor",
+            "intent": state.get("intent", ""),
+            "brain_entry_id": state.get("brain_entry_id", ""),
+        },
     )
 
     memory_id = ""
@@ -204,6 +263,11 @@ def output_formatter(state: SupervisorState) -> SupervisorState:
         f"[모델] {state.get('model_used', '-')}\n"
         f"[시간] {state.get('elapsed_sec', 0.0):.1f}s"
     )
+    if state.get("debate_mode"):
+        formatted += (
+            f"\n[CrewAI] 4역할 토론"
+            f"\n[SHARED_BRAIN] {state.get('brain_entry_id', '-')}"
+        )
     return {**state, "response": formatted}
 
 
@@ -221,26 +285,34 @@ def _get_checkpointer() -> SqliteSaver:
 
 def build_graph():
     """컴파일된 Supervisor 그래프."""
+    global _GRAPH
     graph = StateGraph(SupervisorState)
     graph.add_node("input_parser", input_parser)
     graph.add_node("reasoner", reasoner)
+    graph.add_node("crew_debater", crew_debater)
     graph.add_node("memory_writer", memory_writer)
     graph.add_node("output_formatter", output_formatter)
 
     graph.add_edge(START, "input_parser")
-    graph.add_edge("input_parser", "reasoner")
+    graph.add_conditional_edges(
+        "input_parser",
+        _route_after_parser,
+        {"crew_debater": "crew_debater", "reasoner": "reasoner"},
+    )
     graph.add_edge("reasoner", "memory_writer")
+    graph.add_edge("crew_debater", "memory_writer")
     graph.add_edge("memory_writer", "output_formatter")
     graph.add_edge("output_formatter", END)
 
-    return graph.compile(checkpointer=_get_checkpointer())
+    _GRAPH = graph.compile(checkpointer=_get_checkpointer())
+    return _GRAPH
 
 
 def get_supervisor():
     """싱글톤 그래프."""
     global _GRAPH
     if _GRAPH is None:
-        _GRAPH = build_graph()
+        build_graph()
     return _GRAPH
 
 

@@ -69,6 +69,7 @@ def build_planning() -> dict:
             },
             "week2": {
                 "title": "CrewAI 4역할 토론",
+                "status": "착수 (코어 구현)",
                 "dod": [
                     "장인/심판자/검사관/재판장 에이전트 구현",
                     "토론 루프 LangGraph 연동",
@@ -239,10 +240,23 @@ def build_planning() -> dict:
             "tavily_live_verified": "2026-06-25 verify_tavily_live.py ok",
             "pytest": "24/24",
         },
+        "week2_completed": {
+            "started": "2026-06-25",
+            "items": [
+                "crewai>=1.14 pip (chromadb 1.5.9 pin)",
+                "app/crew 4역할 + 순차 토론",
+                "LangGraph crew_debater 분기",
+                "합의안 → SHARED_BRAIN entries",
+                "Telegram /debate",
+                "scripts/setup_branch_protection.py",
+            ],
+            "pytest": "28/28",
+            "pending": ["gh auth 후 branch protection 적용", "실전 /debate Tavily+Opus 비용 검증"],
+        },
         "week2_next": {
-            "title": "CrewAI 4역할 토론",
-            "blocked_by": "crewai pip 추가 승인 필요",
-            "dod_ref": "roadmap_5weeks.week2",
+            "title": "Week 2 잔여 + Week 3 Tauri 착수",
+            "blocked_by": None,
+            "dod_ref": "roadmap_5weeks.week3",
         },
         "day4_infra_done": [
             "gh CLI v2.95.0 설치 완료",
@@ -270,7 +284,7 @@ def build_planning() -> dict:
         "deferred_decisions": {
             "guardian_bot_cleanup": "Day 5",
             "bot_nas_migration": "Week 2 중반",
-            "branch_protection": "Week 2 시작 전",
+            "branch_protection": "scripts/setup_branch_protection.py (gh auth 필요)",
         },
     }
 
