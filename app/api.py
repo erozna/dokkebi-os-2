@@ -53,15 +53,20 @@ def healthz() -> dict[str, str]:
 
 @app.get("/info")
 def info() -> dict[str, str]:
-    """Tauri / CopilotKit 클라이언트용 메타."""
+    """Tauri / CopilotKit 클라이언트용 메타 + 헌법 헬스체크."""
     import os
+    from pathlib import Path
 
+    from app.config import ROOT
+
+    constitution = Path(ROOT) / "CONSTITUTION.md"
     return {
         "name": "DOKKEBI OS API",
         "version": app.version,
         "copilotkit": "week3-scaffold",
         "subscription_bridge": "enabled",
         "economy_mode": os.environ.get("ECONOMY_MODE", ""),
+        "constitution": "v1.0" if constitution.is_file() else "missing",
     }
 
 

@@ -7,3 +7,6 @@ outbox/*
 !outbox/.gitkeep
 latest.md
 implement.md
+
+# 세션 인계 문서는 커밋 (부팅 문서)
+!SESSION.md

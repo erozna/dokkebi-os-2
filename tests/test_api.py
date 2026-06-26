@@ -30,6 +30,7 @@ def test_info():
     assert data["name"] == "DOKKEBI OS API"
     assert data["version"] == "0.3.0"
     assert data["subscription_bridge"] == "enabled"
+    assert data["constitution"] == "v1.0"
 
 
 def test_goal_post_requires_token_when_configured(monkeypatch):
