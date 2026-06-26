@@ -5,7 +5,7 @@
 
 ## 마지막 결정 사항
 - 헌법 3조 Canonical Flow 9단계 **원문 복원 완료** (STEP 0~9)
-- 백업: GitHub + Synology Drive **완료** / **NAS는 [D] 대기** (SMB 인증 거부, 자격증명 필요)
+- **3중 백업 완성**: GitHub + Synology Drive + NAS (`\\192.168.1.3\home\dokkebi_backup\constitution\`, SHA256 일치 확인)
 - 세션 인계 문서 = `handoff/SESSION.md` (committed) / Bridge [B] 산출물 = `handoff/bridge-<timestamp>.md` (gitignored) — 역할 분리
 - 헌법 0조(최상위, 변경 불가) 발효
 
@@ -18,7 +18,6 @@
 - Tauri 작업 vs 인지 레이어 — 순차 vs 병렬?
 
 ## 사장님 즉시 실행 [D]
-- **NAS 백업** — `\\192.168.1.3\dokkebi_backup\constitution\` 가 SMB 인증 거부. 도깨비가 접근하려면: (a) `cmdkey /add:192.168.1.3 /user:<ID> /pass:<PW>` 1회 등록, 또는 (b) 사장님이 `CONSTITUTION.md`+`handoff/SESSION.md`를 직접 복사. → 등록해주시면 다음 턴 자동 백업+해시검증.
 - [D-3] userPreferences에 "DOKKEBI OS 작업 시작 시 CONSTITUTION.md + handoff/SESSION.md 먼저 읽기" 1줄 추가 (Claude 설정 → 개인화)
 - 부팅 명령 즐겨찾기 저장
 
