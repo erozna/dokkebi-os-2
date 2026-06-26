@@ -19,12 +19,12 @@
 3. **(완료) DoD Auto-Designer (STEP 2) + 평가 #1** — Gemini 2.5-flash **PASS** (confidence 0.90, criteria 5개·측정단위 100%, 정답 4/5, $0.0044/호출). 결과 `docs/DOD_EVAL_001.md`. `/dod` 봇 파이프라인(Intent→DoD→STEP5) 추가.
 4. **(완료) 헌법 STEP 5 보강 발효 + Red Team 모듈** — `60f8054` push + NAS SHA256 OK. `app/routers/red_team.py`(5a~5d) + DoD `red_team=True` 후크 + 다양성 검증(현 점수 0.75).
 5. **(완료) STEP 3 CrewAI 4역할 토론 본 구현 + 평가 #1** — 장인→심판자→검사관→재판장 순차 토론 → 합의안 → Red Team. 실 LLM 평가 **PASS** (테마 5/5, confidence 0.80, $0.0576/회). `app/routers/crew_debate.py` + `jangin_via_cowork.py` + `prompts/{jangin,simpanja,geomsakwan,jaepanjang}.md` + `/debate` 봇 한방 파이프라인. 결과 `docs/DEBATE_EVAL_001.md`. 모킹 4건 + live 1건 통과. (전체 58 passed, ruff clean)
-6. **(진행) Z.ai 키 반영 후 검증 — 계정 잔액 블로커.** 환경변수 4종 O. Z.ai 인증 통과 + 엔드포인트 버그 수정(base URL trailing slash). 단 **`Insufficient balance or no resource package`** → 무료 패키지 미활성. **재평가 #2 중단**(지시 준수). 진짜 다양성 1.0 측정은 충전 후.
+6. **(완료) 심판자 GLM-4.5-Flash 통합 + 평가 #2** — `80a73ad`(헌법) push+NAS OK. 심판자 `zai/glm-4.5-flash` 실호출 성공(잔액 문제 해소), **진짜 다양성 1.0 달성**, 비용 **$0.0374/회(-35%)**, 합의안 PASS(4/5, conf 0.85). `docs/DEBATE_EVAL_002.md`. **단 심판자 Flash 빈 응답(thinking) 발견 → `extra_body thinking disabled` 수정 적용, 다음 턴 1회 검증 필요.**
 7. **다음 1턴 액션 (택1):**
-   - (A) **장인 비용 + 심판자 Z.ai [C] 사장님 결정** — dialogue [C-A]/[C-B] 발의. 권장: Z.ai 충전 + 장인 Anthropic 유지(다양성 1.0, 월 ~$1.5).
-   - (B) **STEP 4 Tech Radar 강화** — Tavily로 "만들 것 vs 가져올 것" 자동 분리.
-   - (C) **STEP 6 Capability Router 코드화** — [A]~[E] 분류 로직.
-   - (D) **STEP 7 Execution 분기** — 합의안 → Capability Router → 실행.
+   - (A) **심판자 Flash 빈 응답 수정 검증** — `/debate` 또는 eval live 1회로 thinking-disabled 효과 확인 (약점 3가지 정상 추출되는지). **최우선 권장.**
+   - (B) **장인 비용 [C-B] 사장님 결정** — dialogue [C-B] 발의(실측 기반). 비용 핵심은 재판장 Gemini Pro thinking.
+   - (C) **STEP 4 Tech Radar 강화** — Tavily로 "만들 것 vs 가져올 것" 자동 분리.
+   - (D) **STEP 6 Capability Router 코드화** — [A]~[E] 분류 로직.
 8. (보류) 보안 키 회수 — 사장님 방침: 1인 로컬 환경 위험 낮음으로 **스킵**. 자격증명 파일 직접 출력 금지 원칙만 유지.
 9. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
 
@@ -35,7 +35,7 @@
 ## 사장님 즉시 실행 [D]
 - [D-3] userPreferences에 "DOKKEBI OS 작업 시작 시 CONSTITUTION.md + handoff/SESSION.md 먼저 읽기" 1줄 추가 (Claude 설정 → 개인화)
 - 부팅 명령 즐겨찾기 저장
-- [D-4] **Z.ai 계정 충전/무료 패키지 활성화** — 키는 유효하나 `Insufficient balance or no resource package`. z.ai 콘솔에서 무료 리소스 패키지 수령 또는 소액 충전 → 심판자 GLM 동작 + 진짜 다양성 1.0.
+- [D-4] (해소) Z.ai 심판자 — **GLM-4.5-Flash로 동작 확인**(무료 tier). 추가 [D] 불필요. 잔여: Flash 빈 응답 수정(thinking disabled) 다음 턴 검증.
 - [D-5] (선택) **장인 Cowork 수동 트리거** — `/debate`는 기본 장인=Claude Sonnet API. Cowork 사용 시 `run_debate(use_cowork=True)` → `handoff/round-N-jangin.md` 생성됨 → Claude Desktop Cowork로 처리 후 `round-N-jangin.result.md` 작성(미작성 시 5분 후 Gemini Pro 폴백).
 
 ## 다음 세션 부팅 명령

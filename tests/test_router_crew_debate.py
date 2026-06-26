@@ -43,8 +43,8 @@ _JAEPANJANG_JSON = json.dumps(
 def _fake_call_llm(captured):
     def _inner(user_input, *, system_prompt=None, max_tokens=800, model=None, fallback=None, return_usage=False):
         captured.append({"model": model, "input": user_input})
-        if model == "zai/glm-4.6":
-            text = "약점1 비용 초과 [비용]\n약점2 수집 누락 [리스크]\n약점3 지연 [시간]"
+        if model == "zai/glm-4.5-flash":
+            text = "[비용] 약점1 비용 초과\n[리스크] 약점2 수집 누락\n[시간] 약점3 지연"
         elif model == "groq/llama-3.3-70b-versatile":
             text = "수집 주 100건 가능\n검토 10분 이하\n실현 가능성: 높음"
         elif model == "gemini/gemini-2.5-pro":
@@ -75,7 +75,7 @@ def test_run_debate_four_roles_sequential_and_context():
     assert len(result.consensus) == 3
     assert result.confidence == 0.85
     # 모델 매핑
-    assert result.models_used["simpanja"] == "zai/glm-4.6"
+    assert result.models_used["simpanja"] == "zai/glm-4.5-flash"
     assert result.models_used["jaepanjang"] == "gemini/gemini-2.5-pro"
     # 라운드 간 컨텍스트 전달: 심판자 입력에 장인 설계, 검사관 입력에 심판자 약점, 재판장 입력에 검사관
     assert "유튜브 API 수집 파이프라인" in captured[0]["input"]  # simpanja

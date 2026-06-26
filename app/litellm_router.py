@@ -33,13 +33,13 @@ _FALLBACK_CHAIN = (
 # 4개 제공자(Anthropic/Z.ai/Groq/Google)로 사각지대 다양성 1.0 충족(STEP 5c).
 DEBATE_ROLE_MODELS: dict[str, str] = {
     "jangin": "anthropic/claude-sonnet-4-6",       # 장인(설계) — Claude Desktop/Cowork 우선
-    "simpanja": "zai/glm-4.6",                       # 심판자(약점) — Z.ai GLM
+    "simpanja": "zai/glm-4.5-flash",                 # 심판자(약점) — Z.ai GLM-4.5-Flash (무료)
     "geomsakwan": "groq/llama-3.3-70b-versatile",    # 검사관(실현성) — Groq
     "jaepanjang": "gemini/gemini-2.5-pro",           # 재판장(합의) — Gemini Pro
 }
 # 역할별 폴백 (분당 한도/미가용 대응)
 DEBATE_ROLE_FALLBACK: dict[str, str] = {
-    "jaepanjang": "zai/glm-4.6",            # Gemini Pro 분당 5회 초과 시 GLM 우회
+    "jaepanjang": "zai/glm-4.5-flash",      # Gemini Pro 분당 5회 초과 시 GLM-4.5-Flash 우회
     "jangin": "gemini/gemini-2.5-pro",      # Cowork 타임아웃 시 임시 대체
 }
 
@@ -90,7 +90,11 @@ def _model_chain(primary: str) -> list[str]:
 
 
 def _zai_kwargs(model_str: str) -> tuple[str, dict]:
-    """Z.ai(GLM) 모델이면 OpenAI 호환 호출로 변환. (호출모델, extra_kwargs)."""
+    """Z.ai(GLM) 모델이면 OpenAI 호환 호출로 변환. (호출모델, extra_kwargs).
+
+    GLM thinking 모델은 reasoning_content에만 출력하고 content를 비울 수 있음 →
+    extra_body로 thinking 비활성화하여 content를 직접 받는다 (docs.z.ai).
+    """
     if model_str.startswith("zai/"):
         key = os.environ.get("ZAI_API_KEY")
         if not key:
@@ -99,6 +103,7 @@ def _zai_kwargs(model_str: str) -> tuple[str, dict]:
         return f"openai/{bare}", {
             "api_base": os.environ.get("ZAI_API_BASE", _ZAI_API_BASE),
             "api_key": key,
+            "extra_body": {"thinking": {"type": "disabled"}},
         }
     return model_str, {}
 
