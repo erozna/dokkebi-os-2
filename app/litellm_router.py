@@ -15,8 +15,8 @@ RouterIntent = Literal["code", "summary", "short", "bulk", "verification", "defa
 # 의도별 1차 모델
 _INTENT_MODEL: dict[str, str] = {
     "code": "anthropic/claude-sonnet-4-6",
-    "summary": "gemini/gemini-1.5-flash",
-    "short": "gemini/gemini-1.5-flash",
+    "summary": "gemini/gemini-2.5-flash",
+    "short": "gemini/gemini-2.5-flash",
     "bulk": "groq/llama-3.3-70b-versatile",
     "verification": "groq/llama-3.3-70b-versatile",
     "default": "anthropic/claude-sonnet-4-6",
@@ -25,7 +25,7 @@ _INTENT_MODEL: dict[str, str] = {
 # 실패 시 폴백 순서
 _FALLBACK_CHAIN = (
     "anthropic/claude-sonnet-4-6",
-    "gemini/gemini-1.5-flash",
+    "gemini/gemini-2.5-flash",
     "groq/llama-3.3-70b-versatile",
 )
 

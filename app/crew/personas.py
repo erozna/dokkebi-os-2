@@ -8,7 +8,7 @@ from app.config import ensure_env_from_credentials
 
 ROLE_MODELS: dict[str, str] = {
     "장인": "anthropic/claude-opus-4-6",
-    "심판자": "gemini/gemini-1.5-flash",
+    "심판자": "gemini/gemini-2.5-flash",
     "검사관": "groq/llama-3.3-70b-versatile",
     "재판장": "anthropic/claude-sonnet-4-6",
 }
