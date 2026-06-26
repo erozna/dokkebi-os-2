@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import ensure_env_from_credentials, use_chroma_server
 from app.memory_service import format_memory_results, search_memories
+from app.routers.intent_extractor import extract_intent
 from app.subscription_bridge import bridge_ingest, bridge_next, bridge_prep, bridge_status
 from app.supervisor import run_supervisor
 
@@ -109,6 +110,38 @@ async def debate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception as exc:  # noqa: BLE001
         logger.exception("/debate 실패")
         await update.message.reply_text(f"처리 중 오류: {exc}")
+
+
+async def intent(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Intent Extractor — 표면/진짜/제약 4분리 (헌법 3조 STEP 1)."""
+    text = " ".join(context.args).strip() if context.args else ""
+    if not text:
+        await update.message.reply_text(
+            "사용법: /intent <문장>\n예) /intent 유튜브 엔진 만들어줘"
+        )
+        return
+
+    try:
+        result = extract_intent(text)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("/intent 실패")
+        await update.message.reply_text(f"의도 추출 오류: {exc}")
+        return
+
+    constraints = "\n".join(f"  - {c}" for c in result.hidden_constraints) or "  - (없음)"
+    lines = [
+        "[의도 추출]",
+        f"표면 목표: {result.surface_goal or '-'}",
+        f"진짜 의도: {result.true_intent or '-'}",
+        "숨은 제약:",
+        constraints,
+        f"근거: {result.reasoning or '-'}",
+        f"확신도: {result.confidence:.2f}  [모델] {result.model_used or '-'}",
+    ]
+    if result.needs_confirmation:
+        lines.append("")
+        lines.append("확신도가 낮습니다(<0.7). 사장님 확인 요청: 위 진짜 의도가 맞습니까? (예/아니오)")
+    await update.message.reply_text("\n".join(lines)[:4000])
 
 
 def _format_bridge_prep(result: dict) -> str:
@@ -220,8 +253,9 @@ def main() -> None:
     app.add_handler(CommandHandler("memory", memory))
     app.add_handler(CommandHandler("goal", goal))
     app.add_handler(CommandHandler("debate", debate))
+    app.add_handler(CommandHandler("intent", intent))
     app.add_handler(CommandHandler("bridge", bridge))
-    logger.info("Telegram bot polling started (/ping, /memory, /goal, /debate, /bridge)")
+    logger.info("Telegram bot polling started (/ping, /memory, /goal, /debate, /intent, /bridge)")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 

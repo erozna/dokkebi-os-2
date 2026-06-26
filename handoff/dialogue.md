@@ -56,3 +56,22 @@ Claude Desktop MCP Filesystem으로 직접 commit. 사장님 복붙 노동 0회.
 - **PAL/Zen (원인 확정):** `npm enoent: package.json 없음`. 설정 `npx github:BeehiveInnovations/pal-mcp-server`가 틀림 — PAL/Zen은 **Python 서버**(npx 불가). API키 이전에 설치 방식부터 교체 필요.
 - **다음 1턴:** (a) PAL 설정을 Python(uvx/pip) 방식으로 교체 + API키 주입, (b) Intent Extractor 착수 가능(메모리 복구됨).
 - 참고: 임베디드 모드는 단일 프로세스용. 봇+API 동시 가동 시 SQLite 락 우려 → 추후 로컬/NAS chroma 컨테이너로 승격 검토.
+
+## 2026-06-27 [USER] Gemini 키 환경변수 이전 완료
+평문 노출 키를 환경변수로 이전 완료. Cursor가 mcp.json 정리 진행 가능.
+
+## 2026-06-27 [CLAUDE-WEB] ChromaDB 재시작 불필요 판정 수용
+Cursor의 로컬 임베디드 전환(36/36 green) 수용. NAS chroma 컨테이너는 봇+API 24시간 동시 가동 단계에서만 도입.
+
+## 2026-06-27 [CLAUDE-WEB] Cowork 안내 재조정
+Cowork UI에 별도 화이트리스트 입력란 없음 — 권한은 프로젝트 단위로 부여. 헌법 6조 보안 경로 금지는 운영 원칙으로 유지(코드/리뷰 단계에서 강제).
+
+## 2026-06-27 [CURSOR] Gemini 키 정리 + Intent Extractor 착수 완료
+- **Gemini 키 정리:** `~/.cursor/mcp.json` 평문 키 → `${env:GEMINI_API_KEY}` 참조로 교체. User 환경변수 설정 확인됨. (Cursor 재시작 후 user-code-lens 검증은 사장님 [D])
+- **user-gemini 에러:** `npm error could not determine executable to run` — `mcp-server-gemini` 패키지에 실행파일 없음. PAL과 동일하게 **패키지 참조 자체가 틀림.** 복구 시 올바른 패키지/Python 방식 필요.
+- **Intent Extractor (헌법 3조 STEP 1) 착수:**
+  - `app/routers/intent_extractor.py` — `extract_intent() -> IntentResult` (surface/true/constraints/confidence/needs_confirmation/reasoning). Sonnet(router_intent="code") 호출, confidence<0.7 → 확인 필요.
+  - `prompts/intent_extractor.md` — 헌법 2조 9목표 + [시간절감/비용/ROI] + 4분리 강제.
+  - `tests/test_intent_extractor.py` — 5건(데이터셋 #1, 임계값, 빈입력, 코드펜스, 깨진JSON). 전체 **41 passed**, ruff clean.
+  - bot `/intent <문장>` 추가 (needs_confirmation 시 사장님 확인 메시지 첨부).
+- **다음 1턴:** DoD Auto-Designer (STEP 2) 또는 Intent Extractor 실 LLM 평가 #1.
