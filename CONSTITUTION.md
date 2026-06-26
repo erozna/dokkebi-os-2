@@ -63,7 +63,7 @@
 | 역할 | 모델 | 호출 방식 | 이유 |
 |------|------|------|------|
 | **장인** (설계) | Claude Sonnet (정액제) | **Claude Desktop / Cowork** | 진짜 의도 추출의 핵심·정액제 활용 |
-| **심판자** (약점) | GLM 5.2 | Z.ai API (무료 2천만 토큰) | Anthropic distillation 의혹 회피 |
+| **심판자** (약점) | **GLM-4.5-Flash** | Z.ai API (무료 tier) | z.ai 무료 Flash 모델 활용, 비용 0 |
 | **검사관** (실현성) | Groq Llama 3.3 70B | API (무료 tier) | 분당 30회, 실현성 검증 적합 |
 | **재판장** (합의) | Gemini 2.5 Pro | API (무료 tier) | 상위 추론력, 합의 정리 적합 |
 
@@ -207,3 +207,5 @@ Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq), CrewAI 4역할, Subscription Bridge, E
 - **2026-06-26:** Anthropic OAuth ToS 정책 확인 후 [C-4] a) NO-GO 결정 (사장님 승인). PAL/Zen 복구는 API 키 기반으로만 ([C-5] a). 계정 안전 우선.
 - **2026-06-27:** **헌법 3조 STEP 5 Red Team Pass 보강** — 사장님 승인. 5a 메모리 회수 / 5b 도구 점검 / 5c 사각지대 다양성 / 5d 사장님 직감 확인. 계기: 사장님이 *"레드팀이 사각지대를 못 보면 무용"* 지적 (발견 10번째).
 - **2026-06-27:** **헌법 3조 STEP 3 4역할 모델 재배치** — 사장님 승인 ((가) 옵션). 장인=Claude Sonnet(Desktop/Cowork) / 심판자=GLM 5.2 / 검사관=Groq Llama 3.3 70B / 재판장=Gemini 2.5 Pro. 이유: 헌법 0조 비용 0 수렴 + Anthropic OAuth 외부 호출 금지 (8조) + 4개 제공자 다양성 (5c) 동시 정합.
+- **2026-06-27:** **헌법 3조 STEP 3 심판자 모델 교체** — 사장님 승인. GLM 5.2 → GLM-4.5-Flash. 이유: bigmodel.cn 무료 2천만 토큰 가입이 한국 사용자 제약으로 실패. 대안으로 z.ai 무료 Flash 모델 사용 (비용 0 유지, 다양성 1.0 유지). Flash는 심판자 약점 찾기 역할에 충분.
+- **2026-06-27:** **Tech Radar 감시 추가**: DeepSeek V4 Flash ($0.14/$0.28 최저가) / Cerebras (일 100만 토큰 무료) / OpenRouter (28개 무료 모델 + $10 충전 시 일 1000회). 미래 다양성 확장 후보.
