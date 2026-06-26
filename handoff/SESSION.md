@@ -14,11 +14,11 @@
 - 사장님 [C] 3건 컴펙: [C-1] a) Cowork GO / [C-2] a) [E] 신설 / [C-3] a) MCP 점검만 우선.
 
 ## 다음 1턴 액션
-1. **(완료) Intent Extractor 스켈레톤** — `app/routers/intent_extractor.py` + `prompts/intent_extractor.md` + `/intent` 봇 명령 + 테스트 5건. 데이터셋 #1("유튜브 엔진") 통과.
-2. **다음: DoD Auto-Designer (헌법 3조 STEP 2)** — Intent 결과를 받아 정량 성공기준 3~5개 자동 생성. (재판장 역할)
-   - 또는 Intent Extractor **실 LLM 평가 #1** 검토 (실제 Sonnet 호출로 데이터셋 #1 confidence 확인)
-3. (선택 [D]) Gemini API 키 **회수(rotate)** — 노출된 키 폐기 후 새 키 발급. mcp.json은 이미 환경변수 참조로 정리됨.
-4. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
+1. **(완료) Intent Extractor 스켈레톤** — `app/routers/intent_extractor.py` + `prompts/intent_extractor.md` + `/intent` 봇 명령 + 테스트 5건. 데이터셋 #1 통과.
+2. **(완료) Intent Extractor 실 LLM 평가 #1** — 실 Sonnet 호출 **PASS** (confidence 0.87, $0.007/호출). 결과 `docs/INTENT_EVAL_001.md`. live 테스트 `tests/test_intent_extractor_live.py`(`pytest -m live`)로 격리.
+3. **다음: DoD Auto-Designer (헌법 3조 STEP 2) 착수** — Intent 결과를 받아 정량 성공기준 3~5개 자동 생성. (재판장 역할)
+4. (선택 [D]) **노출 키 회수(rotate)** — 평가 중 ALL_CREDENTIALS.json 전체가 터미널 노출됨. 우선순위: GitHub PAT · NAS 비번 · Anthropic 키.
+5. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
 
 ## 미해결 질문 (사장님 답변 대기)
 - Canonical Flow 9단계(헌법 3조) 중 직감에 어긋나는 STEP?

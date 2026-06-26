@@ -78,7 +78,7 @@ def extract_intent(
     user_input: str,
     *,
     confidence_threshold: float = _DEFAULT_THRESHOLD,
-    max_tokens: int = 600,
+    max_tokens: int = 800,
 ) -> IntentResult:
     """표면/진짜/제약/이유 4분리 + confidence 기반 확인 필요 여부.
 
