@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import ensure_env_from_credentials, use_chroma_server
 from app.memory_service import format_memory_results, search_memories
+from app.routers.canonical_flow import run_canonical_flow
 from app.routers.crew_debate import run_debate
 from app.routers.dod_designer import design_dod
 from app.routers.intent_extractor import extract_intent
@@ -322,6 +323,37 @@ async def bridge(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f"Bridge 오류: {exc}")
 
 
+async def run(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """/run — 한 줄 입력 → Canonical Flow 9단계 자동 진행 (헌법 3조 STEP 0~9)."""
+    text = " ".join(context.args).strip() if context.args else ""
+    if not text:
+        await update.message.reply_text(
+            "사용법: /run <자유 텍스트>\n예) /run 유튜브 부업채널 분석해줘"
+        )
+        return
+
+    await update.message.reply_text("도깨비 9단계 자동 흐름 시작… (의도→DoD→토론→레이더→레드팀→분류→실행)")
+    try:
+        fr = run_canonical_flow(text, log_dialogue=True)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("/run 실패")
+        await update.message.reply_text(f"흐름 중 오류: {exc}")
+        return
+
+    # STEP별 진행 1줄 스트리밍
+    progress = "\n".join(
+        f"STEP {s['step']} {s['name']}: {s['status']} — {s['summary'][:60]}" for s in fr.steps
+    )
+    await update.message.reply_text(f"[진행]\n{progress}"[:4000])
+
+    # 사장님 능동 질문 ([C])
+    for q in fr.questions:
+        await update.message.reply_text(f"❓ {q}"[:4000])
+
+    # 최종 Usage Doc 발송
+    await update.message.reply_text((fr.usage_doc or "결과 없음")[:4000])
+
+
 def main() -> None:
     """폴링 봇 기동."""
     ensure_env_from_credentials()
@@ -338,8 +370,9 @@ def main() -> None:
     app.add_handler(CommandHandler("intent", intent))
     app.add_handler(CommandHandler("dod", dod))
     app.add_handler(CommandHandler("bridge", bridge))
+    app.add_handler(CommandHandler("run", run))
     logger.info(
-        "Telegram bot polling started (/ping, /memory, /goal, /debate, /intent, /dod, /bridge)"
+        "Telegram bot polling started (/ping, /memory, /goal, /debate, /intent, /dod, /bridge, /run)"
     )
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
