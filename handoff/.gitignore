@@ -8,5 +8,6 @@ outbox/*
 
 # Subscription Bridge 런타임 산출물 (git 제외)
 bridge/
+bridge-*.md
 
-# 세션 인계 문서(latest.md)와 README는 커밋 — 부팅 문서
+# 세션 인계 문서(SESSION.md)와 README는 커밋 — 부팅 문서
