@@ -65,7 +65,7 @@
 | **장인** (설계) | Claude Sonnet (정액제) | **Claude Desktop / Cowork** | 진짜 의도 추출의 핵심·정액제 활용 |
 | **심판자** (약점) | **GLM-4.5-Flash** | Z.ai API (무료 tier) | z.ai 무료 Flash 모델 활용, 비용 0 |
 | **검사관** (실현성) | Groq Llama 3.3 70B | API (무료 tier) | 분당 30회, 실현성 검증 적합 |
-| **재판장** (합의) | Gemini 2.5 Pro | API (무료 tier) | 상위 추론력, 합의 정리 적합 |
+| **재판장** (합의) | **Gemini 2.5 Flash** | API (무료 tier) | thinking 토큰 제거로 비용 71%↓, 합의 정리엔 충분 |
 
 **호출 흐름**:
 1. 장인 라운드 → Cursor가 프롬프트 생성 → `handoff/round-N-jangin.md` 작성 → Cowork task 실행 → 결과 파일 회수
@@ -75,7 +75,7 @@
 
 **다양성 점수**: Anthropic + Z.ai + Groq + Google = **4개 제공자**. STEP 5c "사각지대 다양성" 요구 충족.
 
-**Fallback**: Gemini Pro 분당 5회 한도 초과 시 재판장 역할을 GLM 5.2로 자동 우회 (LiteLLM 설정).
+**Fallback**: 재판장 Flash 분당 한도 초과 시 GLM-4.5-Flash로 자동 우회 (LiteLLM 설정). thinking-disabled 적용 유지.
 
 ### STEP 4 — Tech Radar
 - Tavily로 최신 기술/오픈소스 검색
@@ -164,8 +164,10 @@
 | Week 3.5~3.9 (인지 레이어) | **NEXT** — Intent Extractor, Capability Router 구현 |
 | Week 4~5 | 인지 레이어 위에 재정의 |
 
-**가동 구성요소:** FastAPI `/goal` `/info` `/bridge/*`, Telegram `/ping /memory /goal /debate /bridge`,
-Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq), CrewAI 4역할, Subscription Bridge, ECONOMY_MODE.
+**가동 구성요소:** FastAPI `/goal` `/info` `/bridge/*`, Telegram `/ping /memory /goal /debate /bridge /dod /intent /run`,
+Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq/GLM Flash), CrewAI 4역할, Subscription Bridge, ECONOMY_MODE, Capability Router 5-Way, Canonical Flow 9-Step.
+
+**도깨비 OS 운영 모드 진입 (2026-06-27):** `/run` 엔드포인트 + Capability Router 코드화 완료. 사장님이 텔레그램 봇에 한 줄 던지면 STEP 0~9 자동 진행. 이제 사장님은 메신저가 아니라 **의장 + 결정자**. 헌법 1조 *"사장님 머리의 확장"*이 코드 위에서 처음 작동.
 
 **공유 메커니즘 (2026-06-27 정정):** Claude Desktop과 Cursor는 「MCP 양방향 브리지」가 아니라, 둘 다 관한 **공유 파일 시스템(`D:\SynologyDrive\dokkebi\`)에 네이티브 접근**한다. Claude Desktop 쪽은 filesystem MCP 통해 (허용 경로: `D:\SynologyDrive\dokkebi`), Cursor 쪽은 작업 디렉토리 네이티브 접근. 둘이 같은 파일을 읽고 쓰는 결과로 공유 칠판이 성립. `mcp-memory` 등 별도 서버 불필요 (Cursor MCP_INVENTORY 판정).
 
@@ -209,3 +211,5 @@ Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq), CrewAI 4역할, Subscription Bridge, E
 - **2026-06-27:** **헌법 3조 STEP 3 4역할 모델 재배치** — 사장님 승인 ((가) 옵션). 장인=Claude Sonnet(Desktop/Cowork) / 심판자=GLM 5.2 / 검사관=Groq Llama 3.3 70B / 재판장=Gemini 2.5 Pro. 이유: 헌법 0조 비용 0 수렴 + Anthropic OAuth 외부 호출 금지 (8조) + 4개 제공자 다양성 (5c) 동시 정합.
 - **2026-06-27:** **헌법 3조 STEP 3 심판자 모델 교체** — 사장님 승인. GLM 5.2 → GLM-4.5-Flash. 이유: bigmodel.cn 무료 2천만 토큰 가입이 한국 사용자 제약으로 실패. 대안으로 z.ai 무료 Flash 모델 사용 (비용 0 유지, 다양성 1.0 유지). Flash는 심판자 약점 찾기 역할에 충분.
 - **2026-06-27:** **Tech Radar 감시 추가**: DeepSeek V4 Flash ($0.14/$0.28 최저가) / Cerebras (일 100만 토큰 무료) / OpenRouter (28개 무료 모델 + $10 충전 시 일 1000회). 미래 다양성 확장 후보.
+- **2026-06-27:** **헌법 3조 STEP 3 재판장 모델 교체** — 사장님 승인 [C-2] 가. Gemini 2.5 Pro → Gemini 2.5 Flash. 이유: 재판장 thinking 토큰이 전체 비용의 71% (DEBATE_EVAL_003 실측). Flash로 교체 시 합산 비용 일10건 월 약 $10.6 → $3.3 (4,500원). 다양성 1.0 유지.
+- **2026-06-27:** **도깨비 OS 운영 모드 진입** — 사장님 승인 [C-3] 가. `/run` 엔드포인트 + Capability Router(5-Way) + Canonical Flow(9-Step) + Executor(A/B/C/D/E 분기) + Usage Doc 자동 생성 완성. 사장님 한 줄 입력 → 9단계 자동. 메신저 노동 종결 직전 (최종 실증 대기).

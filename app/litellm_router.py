@@ -35,11 +35,11 @@ DEBATE_ROLE_MODELS: dict[str, str] = {
     "jangin": "anthropic/claude-sonnet-4-6",       # 장인(설계) — Claude Desktop/Cowork 우선
     "simpanja": "zai/glm-4.5-flash",                 # 심판자(약점) — Z.ai GLM-4.5-Flash (무료)
     "geomsakwan": "groq/llama-3.3-70b-versatile",    # 검사관(실현성) — Groq
-    "jaepanjang": "gemini/gemini-2.5-pro",           # 재판장(합의) — Gemini Pro
+    "jaepanjang": "gemini/gemini-2.5-flash",         # 재판장(합의) — Gemini Flash (thinking-disabled, 비용 71%↓)
 }
 # 역할별 폴백 (분당 한도/미가용 대응)
 DEBATE_ROLE_FALLBACK: dict[str, str] = {
-    "jaepanjang": "zai/glm-4.5-flash",      # Gemini Pro 분당 5회 초과 시 GLM-4.5-Flash 우회
+    "jaepanjang": "zai/glm-4.5-flash",      # Gemini Flash 분당 한도 초과 시 GLM-4.5-Flash 우회
     "jangin": "gemini/gemini-2.5-pro",      # Cowork 타임아웃 시 임시 대체
 }
 
@@ -90,10 +90,11 @@ def _model_chain(primary: str) -> list[str]:
 
 
 def _zai_kwargs(model_str: str) -> tuple[str, dict]:
-    """Z.ai(GLM) 모델이면 OpenAI 호환 호출로 변환. (호출모델, extra_kwargs).
+    """모델별 호출 변환. (호출모델, extra_kwargs).
 
-    GLM thinking 모델은 reasoning_content에만 출력하고 content를 비울 수 있음 →
-    extra_body로 thinking 비활성화하여 content를 직접 받는다 (docs.z.ai).
+    - Z.ai(GLM): OpenAI 호환 호출 + extra_body로 thinking 비활성화(content 직접 수신).
+    - Gemini 2.5 Flash: reasoning_effort="disable" → thinkingBudget 0(헌법 3조 비용 71%↓).
+      Pro와 달리 Flash는 thinking 예산 0 지정이 허용된다.
     """
     if model_str.startswith("zai/"):
         key = os.environ.get("ZAI_API_KEY")
@@ -105,6 +106,9 @@ def _zai_kwargs(model_str: str) -> tuple[str, dict]:
             "api_key": key,
             "extra_body": {"thinking": {"type": "disabled"}},
         }
+    if "gemini-2.5-flash" in model_str:
+        # thinkingConfig.thinkingBudget=0 — 합의 정리엔 thinking 불필요.
+        return model_str, {"reasoning_effort": "disable"}
     return model_str, {}
 
 

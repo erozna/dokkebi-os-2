@@ -22,11 +22,11 @@
 6. **(완료) 심판자 GLM-4.5-Flash 통합 + 평가 #2/#3** — `80a73ad`(헌법) push+NAS OK. 다양성 **1.0 달성**. 평가 #2서 심판자 빈 응답 → **#3서 `thinking disabled`로 해결**(228자, 약점 3가지 정확 추출, conf 0.90, $0.0353/회). `docs/DEBATE_EVAL_002/003.md`.
 7. **비용 분해 실측:** 토론 1회 $0.0353 中 **재판장 Gemini Pro $0.0249(71%, thinking)**, 장인 Sonnet $0.0103(29%), 심판자·검사관 $0.
 8. **(완료) 트랙 A 평가 #3 재현 + 트랙 B STEP 6 코드화** — 트랙 A: live 1회 재실행 심판자 228자 재현(빈 응답 0건), 합산 $0.046484(재판장 thinking 75%). 트랙 B: `capability_router.py`(5-Way classify) + `canonical_flow.py`(STEP 0~9 오케스트레이터) + `executor.py`(A~E 분기) + `usage_doc.py`(STEP 8) + bot `/run` 한 줄 입력→9단계 자동. 테스트 14 신규 PASS(전체 72), bot import OK.
-9. **다음 1턴 액션 (택1):**
-   - (A) **운영 모드 첫 실증 (권장)** — 사장님이 텔레그램에서 `/run "테스트 작업"` 직접 트리거 → 9단계 자동 흐름 + Usage Doc 수신 검증. (Cursor 자동 호출 금지 — 메신저 노릇 종결 첫 실증은 사장님 직접 트리거)
-   - (B) **[C-B]+[C-C] 사장님 결정 → 헌법 갱신** — 권장: 장인 Sonnet 유지 + 재판장 Gemini **Flash** 교체(다양성 1.0, 비용 71%↓).
-   - (C) **STEP 4 Tech Radar 본 강화** — Tavily "만들 것 vs 가져올 것" 자동 분리(현재 스켈레톤).
-   - (D) **STEP 7 Executor [A] 실행 강화** — 화이트리스트 기반 실 subprocess/함수 호출(현재 v1 계획만).
+9. **(완료) 운영 모드 진입 + 재판장 Flash 교체** — [C-1~4] 모두 (가). 헌법 3조 재판장 Pro→**Flash**(reasoning_effort="disable" → thinkingBudget 0 검증), 폴백 GLM-4.5-Flash. 6조 Live "운영 모드 진입" + 9조 History 2건. crew_debate max_tokens 1500. 전체 72 PASS, /run smoke(mock) 4메시지 양식 확인. live 0회.
+10. **다음 1턴 액션 (택1):**
+   - (A) **운영 모드 첫 실증 (권장·다음 단계)** — 사장님이 텔레그램에서 직접 `/run` 트리거 → 9단계 자동 진행 관찰 → 결과 + Usage Doc 검토 → STEP 7 [A] 화이트리스트 [C-4] 결정. 입력 후보 3개 dialogue 참조. (⚠️ Cursor 자동 호출 금지)
+   - (B) **STEP 4 Tech Radar 본 강화** — Tavily "만들 것 vs 가져올 것" 자동 분리(현재 스켈레톤).
+   - (C) **STEP 7 Executor [A] 실행 강화** — 화이트리스트 기반 실 subprocess/함수 호출(현재 v1 계획만, [C-4] 실증 후 결정).
 8. (보류) 보안 키 회수 — 사장님 방침: 1인 로컬 환경 위험 낮음으로 **스킵**. 자격증명 파일 직접 출력 금지 원칙만 유지.
 9. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
 

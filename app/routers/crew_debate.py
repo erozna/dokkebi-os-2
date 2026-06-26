@@ -132,21 +132,21 @@ def _run_once(
     if log_dialogue:
         _append_dialogue("geomsakwan", text)
 
-    # 4) 재판장 — 합의안 (JSON). Gemini 2.5 Pro는 thinking 토큰 소모 큼 → 넉넉히.
+    # 4) 재판장 — 합의안 (JSON). Gemini 2.5 Flash(thinking-disabled) → 1500 적정.
     j_in = (
         f"{g_in}\n\n[검사관 실현성]\n{result.geomsakwan}\n\n"
         "위 발언을 종합해 최종 합의안을 스키마대로 JSON으로만 출력하세요."
     )
-    text, model, usage = _call_role("jaepanjang", j_in, max_tokens=max(max_tokens, 4096))
+    text, model, usage = _call_role("jaepanjang", j_in, max_tokens=max(max_tokens, 1500))
     data = _parse_json(text)
-    # Pro가 thinking으로 본문 비거나 파싱 실패 시 → flash로 1회 재시도
+    # Flash가 본문 비거나 파싱 실패 시 → GLM-4.5-Flash로 1회 재시도(다른 제공자).
     if not text.strip() or not (isinstance(data, dict) and data.get("consensus")):
-        logger.warning("재판장(%s) 합의안 비거나 파싱 실패 → gemini-2.5-flash 재시도", model)
+        logger.warning("재판장(%s) 합의안 비거나 파싱 실패 → zai/glm-4.5-flash 재시도", model)
         text2, model2, usage2 = call_llm(
             j_in,
             system_prompt=_prompt("jaepanjang"),
-            max_tokens=2048,
-            model="gemini/gemini-2.5-flash",
+            max_tokens=1500,
+            model="zai/glm-4.5-flash",
             return_usage=True,
         )
         if text2.strip():
