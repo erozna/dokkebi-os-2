@@ -129,6 +129,10 @@
 **가동 구성요소:** FastAPI `/goal` `/info` `/bridge/*`, Telegram `/ping /memory /goal /debate /bridge`,
 Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq), CrewAI 4역할, Subscription Bridge, ECONOMY_MODE.
 
+**공유 메커니즘 (2026-06-27 정정):** Claude Desktop과 Cursor는 「MCP 양방향 브리지」가 아니라, 둘 다 관한 **공유 파일 시스템(`D:\SynologyDrive\dokkebi\`)에 네이티브 접근**한다. Claude Desktop 쪽은 filesystem MCP 통해 (허용 경로: `D:\SynologyDrive\dokkebi`), Cursor 쪽은 작업 디렉토리 네이티브 접근. 둘이 같은 파일을 읽고 쓰는 결과로 공유 칠판이 성립. `mcp-memory` 등 별도 서버 불필요 (Cursor MCP_INVENTORY 판정).
+
+**보안 경로 화이트리스트 (Cowork/[E] 권한):** 작업경로만 허용. `D:\SynologyDrive\dokkebi_secrets\`, `~/.cursor/mcp.json`, `%APPDATA%\Claude\` 등 자격증명 보관 경로는 **절대 금지**.
+
 ---
 
 ## [7조] 다음 세션 부팅 절차
@@ -159,4 +163,7 @@ Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq), CrewAI 4역할, Subscription Bridge, E
 - **2026-06-26:** 3조 Canonical Flow 9단계 원문 복원 (Cursor 보정 후 사장님 승인).
 - **2026-06-26:** **Claude Desktop MCP Filesystem 양방향 브리지 발효.** 이전 세션의 "파일 접근 불가" 단언은 자기 점검 게으름이었고, 사장님 정정으로 발효. 이 헌법 갱신이 Claude(채팅)가 파일 시스템에 직접 쓴 첫 commit.
 - **2026-06-26:** **헌법 4조 [E] Background 분류 신설 — 사장님 승인.** Claude Cowork 도입 GO ([C-1] a). Cursor에 MCP 서버 점검 위임 ([C-3] a, mcp-memory 추가는 점검 후 결정).
+- **2026-06-27:** **MCP 서버 전수 점검 완료** (Cursor, `docs/MCP_INVENTORY.md`). 판정: mcp-memory 도입 불필요 (파일 공유 네이티브로 충분). 양방향 브리지 정체 = 공유 파일 시스템 + 네이티브 접근 명시 반영.
+- **2026-06-27:** **보안 인시던트** — Gemini API 키 평문 노출 (`~/.cursor/mcp.json` + 터미널 히스토리) 확인. 사장님 [D] 즉시 회수 + 환경변수 이전 진행 중. Cursor MCP_INVENTORY.md 자체에는 키 미기록 (안전 조치).
+- **2026-06-27:** Cursor 자기 반성 기록 — 헌법 4조 [E] 이미 발효되었음을 본문 미독으로 못 탐지. 헌법 7조 준수로 정정. 이후 헌법 판단은 본문 근거 원칙.
 - **2026-06-26:** Anthropic OAuth ToS 정책 확인 후 [C-4] a) NO-GO 결정 (사장님 승인). PAL/Zen 복구는 API 키 기반으로만 ([C-5] a). 계정 안전 우선.
