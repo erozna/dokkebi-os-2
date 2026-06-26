@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import ensure_env_from_credentials, use_chroma_server
 from app.memory_service import format_memory_results, search_memories
+from app.routers.dod_designer import design_dod
 from app.routers.intent_extractor import extract_intent
 from app.subscription_bridge import bridge_ingest, bridge_next, bridge_prep, bridge_status
 from app.supervisor import run_supervisor
@@ -144,6 +145,39 @@ async def intent(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("\n".join(lines)[:4000])
 
 
+async def dod(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Intent → DoD 파이프라인 (헌법 3조 STEP 1→2). 정량 완료조건 산출."""
+    text = " ".join(context.args).strip() if context.args else ""
+    if not text:
+        await update.message.reply_text(
+            "사용법: /dod <문장>\n예) /dod 유튜브 엔진 만들어줘"
+        )
+        return
+
+    try:
+        intent_result = extract_intent(text)
+        dod_result = design_dod(intent_result)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("/dod 실패")
+        await update.message.reply_text(f"DoD 설계 오류: {exc}")
+        return
+
+    criteria = "\n".join(f"  {i}. {c}" for i, c in enumerate(dod_result.criteria, 1)) or "  - (없음)"
+    lines = [
+        "[완료조건 DoD]",
+        f"진짜 의도: {intent_result.true_intent or '-'}",
+        "완료조건:",
+        criteria,
+        f"근거: {dod_result.reasoning or '-'}",
+        f"측정가능: {'예' if dod_result.measurable else '아니오'}  확신도: {dod_result.confidence:.2f}",
+        f"[모델] {dod_result.model_used or '-'}",
+    ]
+    if intent_result.needs_confirmation or dod_result.needs_confirmation:
+        lines.append("")
+        lines.append("확신도 부족 또는 완료조건 미확정. 사장님 확인 요청: 위 완료조건이 맞습니까? (예/아니오)")
+    await update.message.reply_text("\n".join(lines)[:4000])
+
+
 def _format_bridge_prep(result: dict) -> str:
     return (
         f"[Bridge prep]\n"
@@ -254,8 +288,11 @@ def main() -> None:
     app.add_handler(CommandHandler("goal", goal))
     app.add_handler(CommandHandler("debate", debate))
     app.add_handler(CommandHandler("intent", intent))
+    app.add_handler(CommandHandler("dod", dod))
     app.add_handler(CommandHandler("bridge", bridge))
-    logger.info("Telegram bot polling started (/ping, /memory, /goal, /debate, /intent, /bridge)")
+    logger.info(
+        "Telegram bot polling started (/ping, /memory, /goal, /debate, /intent, /dod, /bridge)"
+    )
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 

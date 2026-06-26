@@ -15,10 +15,11 @@
 
 ## 다음 1턴 액션
 1. **(완료) Intent Extractor 스켈레톤** — `app/routers/intent_extractor.py` + `prompts/intent_extractor.md` + `/intent` 봇 명령 + 테스트 5건. 데이터셋 #1 통과.
-2. **(완료) Intent Extractor 실 LLM 평가 #1** — 실 Sonnet 호출 **PASS** (confidence 0.87, $0.007/호출). 결과 `docs/INTENT_EVAL_001.md`. live 테스트 `tests/test_intent_extractor_live.py`(`pytest -m live`)로 격리.
-3. **다음: DoD Auto-Designer (헌법 3조 STEP 2) 착수** — Intent 결과를 받아 정량 성공기준 3~5개 자동 생성. (재판장 역할)
-4. (선택 [D]) **노출 키 회수(rotate)** — 평가 중 ALL_CREDENTIALS.json 전체가 터미널 노출됨. 우선순위: GitHub PAT · NAS 비번 · Anthropic 키.
-5. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
+2. **(완료) Intent Extractor 실 LLM 평가 #1** — 실 Sonnet 호출 **PASS** (confidence 0.87, $0.007/호출). 결과 `docs/INTENT_EVAL_001.md`.
+3. **(완료) DoD Auto-Designer (STEP 2) + 평가 #1** — Gemini 2.5-flash **PASS** (confidence 0.90, criteria 5개·측정단위 100%, 정답 4/5, $0.0044/호출). 결과 `docs/DOD_EVAL_001.md`. `/dod` 봇 파이프라인(Intent→DoD) 추가.
+4. **다음: STEP 3 CrewAI 4역할 토론 진입 또는 운영 모델 결정 [C]** — DoD 완료조건을 받아 4역할(설계/검증/레드팀/심판) 토론으로 실행안 확정.
+5. (보류) 보안 키 회수 — 사장님 방침: 1인 로컬 환경 위험 낮음으로 **스킵**. 자격증명 파일 직접 출력 금지 원칙만 유지.
+6. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
 
 ## 미해결 질문 (사장님 답변 대기)
 - Canonical Flow 9단계(헌법 3조) 중 직감에 어긋나는 STEP?

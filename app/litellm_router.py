@@ -78,13 +78,17 @@ def call_llm(
     router_intent: RouterIntent = "default",
     system_prompt: str | None = None,
     max_tokens: int = 800,
+    model: str | None = None,
 ) -> tuple[str, str]:
-    """LLM 호출. (응답텍스트, 사용모델) 반환."""
+    """LLM 호출. (응답텍스트, 사용모델) 반환.
+
+    model을 명시하면 router_intent 대신 그 모델을 1차로 쓰고, 실패 시 동일 폴백 체인.
+    """
     ensure_env_from_credentials()
     if os.environ.get("GOOGLE_API_KEY") and not os.environ.get("GEMINI_API_KEY"):
         os.environ["GEMINI_API_KEY"] = os.environ["GOOGLE_API_KEY"]
 
-    primary = select_model(router_intent)
+    primary = model or select_model(router_intent)
     system = system_prompt or "당신은 도깨비 OS 어시스턴트입니다. 한국어로 간결히 답하세요."
     messages = [
         {"role": "system", "content": system},
