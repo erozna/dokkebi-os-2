@@ -42,3 +42,11 @@ Claude Desktop MCP Filesystem으로 직접 commit. 사장님 복붙 노동 0회.
   3. ChromaDB DOWN 확정 + gemini API키 평문 노출(즉시 회수 권장).
 - 판정: **mcp-memory 추가 불필요.** 파일-온-디스크로 충분. (선택) filesystem 경로에 프로젝트 루트 추가하면 견고.
 - 다음 1턴 권장: **ChromaDB 재시작([D]) → Intent Extractor 스켈레톤 착수.** (메모리 없이는 STEP 9 막힘)
+
+## 2026-06-27 [CURSOR] OAuth 정책 정정 반영 ([C-4]/[C-5])
+- 사장님 정정 접수. 헌법 갱신 3건 commit:
+  1. **8조** — Anthropic OAuth 토큰 공식 클라이언트 외부 호출 금지 (claude-cli-auth 등 NO-GO, 계정 정지 위험).
+  2. **6조 Live** — OAuth 정책 상태 1줄 + 멀티모델은 API 키 기반만.
+  3. **9조 History** — [C-4] a) NO-GO + [C-5] a) PAL/Zen API키 기반 복구 결정 append.
+- 자기반성: 직전 턴 4조 [E] 정의를 재요청한 것은 **헌법 7조 위반**(본문 안 읽고 SESSION.md만 참조). 본문 확인 결과 [E]는 이미 발효 상태였음.
+- 다음: PAL/Zen 복구 대기 — 사장님 [D]로 user-pal 빨간불 에러 캡처 필요. (Gemini/Groq/Anthropic **API 키**만, OAuth 금지)

@@ -113,9 +113,10 @@
 ## [6조] 현재 진행 상태 (Live — 자동 갱신)
 
 - **갱신:** 2026-06-26
-- **마지막 커밋:** `2f6f84c` (feat: Subscription Bridge)
-- **pytest:** 36/36 green · **ruff:** clean
+- **마지막 커밋:** `3b7e53e` (feat: 4조 [E] + dialogue.md + MCP 점검)
+- **pytest:** 33/36 (3건은 ChromaDB DOWN 탓) · **ruff:** clean
 - **repo:** https://github.com/erozna/dokkebi-os-2 (main, PUBLIC, branch protection ON)
+- **Anthropic OAuth 정책 (2026-06-26 기준):** 제3자 도구에서 OAuth 토큰 사용 금지. PAL/Zen 등 멀티모델 오케스트레이션은 API 키 기반으로만 운영.
 
 | 주차 | 상태 |
 |------|------|
@@ -147,6 +148,7 @@ Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq), CrewAI 4역할, Subscription Bridge, E
 - **6조(현재 상태)·9조(History)만** 자동 변경.
 - **1~5조, 7조, 8조는 사장님 명시 승인 없이 변경 금지.**
 - 백업 3중: GitHub + Synology Drive + NAS (단일 실패점 방지).
+- **계정 안전:** Anthropic OAuth 토큰을 공식 클라이언트(Claude Code CLI, Claude Desktop, Claude.ai, Cowork) **외부에서 호출 금지.** 제3자 라이브러리(`claude-cli-auth` 등) 도입 시 계정 정지 위험. 멀티모델 오케스트레이션은 **API 키 기반으로만.**
 
 ---
 
@@ -157,3 +159,4 @@ Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq), CrewAI 4역할, Subscription Bridge, E
 - **2026-06-26:** 3조 Canonical Flow 9단계 원문 복원 (Cursor 보정 후 사장님 승인).
 - **2026-06-26:** **Claude Desktop MCP Filesystem 양방향 브리지 발효.** 이전 세션의 "파일 접근 불가" 단언은 자기 점검 게으름이었고, 사장님 정정으로 발효. 이 헌법 갱신이 Claude(채팅)가 파일 시스템에 직접 쓴 첫 commit.
 - **2026-06-26:** **헌법 4조 [E] Background 분류 신설 — 사장님 승인.** Claude Cowork 도입 GO ([C-1] a). Cursor에 MCP 서버 점검 위임 ([C-3] a, mcp-memory 추가는 점검 후 결정).
+- **2026-06-26:** Anthropic OAuth ToS 정책 확인 후 [C-4] a) NO-GO 결정 (사장님 승인). PAL/Zen 복구는 API 키 기반으로만 ([C-5] a). 계정 안전 우선.
