@@ -87,3 +87,31 @@ def test_design_dod_malformed_json_safe_default():
     assert result.measurable is False
     assert result.confidence == 0.0
     assert result.needs_confirmation is True
+
+
+def test_design_dod_red_team_hook_holds_when_not_proceed():
+    """STEP 5 후크: red_team=True → run_red_team_pass 호출, proceed=False면 합의 보류."""
+    from app.routers.red_team import RedTeamResult
+
+    rt = RedTeamResult(proceed=False, steps_complete=True, needs_user_intuition=True)
+    with patch("app.routers.dod_designer.call_llm") as mocked_llm, patch(
+        "app.routers.dod_designer.run_red_team_pass", return_value=rt
+    ) as mocked_rt:
+        mocked_llm.return_value = (_DOD_1_LLM, "gemini/gemini-2.5-flash")
+        result = design_dod(_INTENT_1, red_team=True)
+
+    mocked_rt.assert_called_once()
+    assert result.red_team is rt
+    assert result.needs_confirmation is True  # proceed=False → 보류
+
+
+def test_design_dod_no_red_team_by_default():
+    """기본(red_team=False)은 run_red_team_pass 미호출 — 기존 동작 보존."""
+    with patch("app.routers.dod_designer.call_llm") as mocked_llm, patch(
+        "app.routers.dod_designer.run_red_team_pass"
+    ) as mocked_rt:
+        mocked_llm.return_value = (_DOD_1_LLM, "gemini/gemini-2.5-flash")
+        result = design_dod(_INTENT_1)
+
+    mocked_rt.assert_not_called()
+    assert result.red_team is None

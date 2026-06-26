@@ -156,7 +156,7 @@ async def dod(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     try:
         intent_result = extract_intent(text)
-        dod_result = design_dod(intent_result)
+        dod_result = design_dod(intent_result, red_team=True)  # STEP 5 Red Team 포함
     except Exception as exc:  # noqa: BLE001
         logger.exception("/dod 실패")
         await update.message.reply_text(f"DoD 설계 오류: {exc}")
@@ -172,9 +172,27 @@ async def dod(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         f"측정가능: {'예' if dod_result.measurable else '아니오'}  확신도: {dod_result.confidence:.2f}",
         f"[모델] {dod_result.model_used or '-'}",
     ]
+
+    rt = dod_result.red_team
+    if rt is not None:
+        lines.append("")
+        lines.append("[Red Team Pass — 헌법 3조 STEP 5]")
+        if rt.failure_reasons:
+            lines.append("6개월 후 실패 이유:")
+            lines.extend(f"  - {r}" for r in rt.failure_reasons[:3])
+        lines.append(
+            f"모델 다양성: {rt.diversity_score:.2f}"
+            + (f"  ⚠ {rt.diversity_warning}" if rt.diversity_warning else "")
+        )
+
     if intent_result.needs_confirmation or dod_result.needs_confirmation:
         lines.append("")
-        lines.append("확신도 부족 또는 완료조건 미확정. 사장님 확인 요청: 위 완료조건이 맞습니까? (예/아니오)")
+        if rt is not None and rt.needs_user_intuition:
+            lines.append(rt.user_question)
+        else:
+            lines.append(
+                "확신도 부족 또는 완료조건 미확정. 사장님 확인 요청: 위 완료조건이 맞습니까? (예/아니오)"
+            )
     await update.message.reply_text("\n".join(lines)[:4000])
 
 

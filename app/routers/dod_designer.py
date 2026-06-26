@@ -12,6 +12,7 @@ from functools import lru_cache
 from app.config import ROOT
 from app.litellm_router import call_llm
 from app.routers.intent_extractor import IntentResult, _parse_json
+from app.routers.red_team import RedTeamResult, run_red_team_pass
 
 _PROMPT_PATH = ROOT / "prompts" / "dod_designer.md"
 _DEFAULT_THRESHOLD = 0.7
@@ -32,6 +33,7 @@ class DoDResult:
     needs_confirmation: bool = True
     model_used: str = ""
     raw: str = ""
+    red_team: "RedTeamResult | None" = None
 
 
 @lru_cache(maxsize=1)
@@ -72,11 +74,13 @@ def design_dod(
     confidence_threshold: float = _DEFAULT_THRESHOLD,
     max_tokens: int = 2048,  # gemini-2.5-flash는 thinking 토큰 소모 → 넉넉히
     model: str = _DOD_MODEL,
+    red_team: bool = False,
 ) -> DoDResult:
     """진짜 의도 → 정량 완료조건 3~5개.
 
     의도가 비었으면 LLM 호출 없이 확인 필요로 반환.
     confidence < threshold 또는 criteria 개수 이탈 시 needs_confirmation=True.
+    red_team=True면 DoD 생성 후 STEP 5 Red Team Pass 자동 실행 — proceed=False 시 합의 보류.
     """
     if intent_result is None or not (intent_result.surface_goal or intent_result.true_intent).strip():
         return DoDResult(
@@ -101,7 +105,7 @@ def design_dod(
     measurable = bool(data.get("measurable")) and count_ok
     needs_confirmation = confidence < confidence_threshold or not count_ok or not measurable
 
-    return DoDResult(
+    result = DoDResult(
         criteria=criteria,
         measurable=measurable,
         confidence=confidence,
@@ -110,3 +114,18 @@ def design_dod(
         model_used=model_used,
         raw=response,
     )
+
+    # 헌법 3조 STEP 5 후크 — DoD 합의안 위에 Red Team Pass를 얹는다.
+    if red_team and criteria:
+        consensus = {
+            "surface_goal": intent_result.surface_goal,
+            "true_intent": intent_result.true_intent,
+            "criteria": criteria,
+            "reasoning": result.reasoning,
+        }
+        rt = run_red_team_pass(consensus)
+        result.red_team = rt
+        if not rt.proceed:  # 강제 단계 누락 또는 사장님 미확인 → 합의 보류
+            result.needs_confirmation = True
+
+    return result

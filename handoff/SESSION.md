@@ -16,10 +16,14 @@
 ## 다음 1턴 액션
 1. **(완료) Intent Extractor 스켈레톤** — `app/routers/intent_extractor.py` + `prompts/intent_extractor.md` + `/intent` 봇 명령 + 테스트 5건. 데이터셋 #1 통과.
 2. **(완료) Intent Extractor 실 LLM 평가 #1** — 실 Sonnet 호출 **PASS** (confidence 0.87, $0.007/호출). 결과 `docs/INTENT_EVAL_001.md`.
-3. **(완료) DoD Auto-Designer (STEP 2) + 평가 #1** — Gemini 2.5-flash **PASS** (confidence 0.90, criteria 5개·측정단위 100%, 정답 4/5, $0.0044/호출). 결과 `docs/DOD_EVAL_001.md`. `/dod` 봇 파이프라인(Intent→DoD) 추가.
-4. **다음: STEP 3 CrewAI 4역할 토론 진입 또는 운영 모델 결정 [C]** — DoD 완료조건을 받아 4역할(설계/검증/레드팀/심판) 토론으로 실행안 확정.
-5. (보류) 보안 키 회수 — 사장님 방침: 1인 로컬 환경 위험 낮음으로 **스킵**. 자격증명 파일 직접 출력 금지 원칙만 유지.
-6. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
+3. **(완료) DoD Auto-Designer (STEP 2) + 평가 #1** — Gemini 2.5-flash **PASS** (confidence 0.90, criteria 5개·측정단위 100%, 정답 4/5, $0.0044/호출). 결과 `docs/DOD_EVAL_001.md`. `/dod` 봇 파이프라인(Intent→DoD→STEP5) 추가.
+4. **(완료) 헌법 STEP 5 보강 발효 + Red Team 모듈** — `60f8054` push + NAS SHA256 OK. `app/routers/red_team.py`(5a~5d) + DoD `red_team=True` 후크 + 다양성 검증(현 점수 0.75).
+5. **다음 후보 (택1):**
+   - (a) **4역할 모델 재배치 [C]** — 사장님 결정. 현 다양성 0.75(anthropic 중복) → 전원 다른 제공자(Claude+Gemini+Groq+GLM)로?
+   - (b) **STEP 3 CrewAI 4역할 토론 본 구현** — DoD 완료조건 → 4역할 토론 → 합의안 (Red Team Pass 통합).
+   - (c) **STEP 4 Tech Radar 강화**.
+6. (보류) 보안 키 회수 — 사장님 방침: 1인 로컬 환경 위험 낮음으로 **스킵**. 자격증명 파일 직접 출력 금지 원칙만 유지.
+7. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
 
 ## 미해결 질문 (사장님 답변 대기)
 - Canonical Flow 9단계(헌법 3조) 중 직감에 어긋나는 STEP?

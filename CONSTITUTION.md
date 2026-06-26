@@ -56,8 +56,26 @@
 ### STEP 2 — DoD Auto-Designer (재판장)
 정량적 성공 기준 자동 생성 3~5개.
 
-### STEP 3 — CrewAI 4역할 토론
-장인(Opus) 설계 → 심판자(Gemini) 약점 → 검사관(Groq) 실현성 → 재판장(Sonnet) 합의.
+### STEP 3 — CrewAI 4역할 토론 (2026-06-27 재배치)
+
+**모델 구성** (사장님 승인 — 헌법 0조 "비용 0 수렴" 정합):
+
+| 역할 | 모델 | 호출 방식 | 이유 |
+|------|------|------|------|
+| **장인** (설계) | Claude Sonnet (정액제) | **Claude Desktop / Cowork** | 진짜 의도 추출의 핵심·정액제 활용 |
+| **심판자** (약점) | GLM 5.2 | Z.ai API (무료 2천만 토큰) | Anthropic distillation 의혹 회피 |
+| **검사관** (실현성) | Groq Llama 3.3 70B | API (무료 tier) | 분당 30회, 실현성 검증 적합 |
+| **재판장** (합의) | Gemini 2.5 Pro | API (무료 tier) | 상위 추론력, 합의 정리 적합 |
+
+**호출 흐름**:
+1. 장인 라운드 → Cursor가 프롬프트 생성 → `handoff/round-N-jangin.md` 작성 → Cowork task 실행 → 결과 파일 회수
+2. 심판자·검사관·재판장 → LiteLLM API 직접 호출
+3. 각 라운드 결과 dialogue.md 자동 append
+4. 합의안 SHARED_BRAIN 기록
+
+**다양성 점수**: Anthropic + Z.ai + Groq + Google = **4개 제공자**. STEP 5c "사각지대 다양성" 요구 충족.
+
+**Fallback**: Gemini Pro 분당 5회 한도 초과 시 재판장 역할을 GLM 5.2로 자동 우회 (LiteLLM 설정).
 
 ### STEP 4 — Tech Radar
 - Tavily로 최신 기술/오픈소스 검색
@@ -188,3 +206,4 @@ Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq), CrewAI 4역할, Subscription Bridge, E
 - **2026-06-27:** Cursor 자기 반성 기록 — 헌법 4조 [E] 이미 발효되었음을 본문 미독으로 못 탐지. 헌법 7조 준수로 정정. 이후 헌법 판단은 본문 근거 원칙.
 - **2026-06-26:** Anthropic OAuth ToS 정책 확인 후 [C-4] a) NO-GO 결정 (사장님 승인). PAL/Zen 복구는 API 키 기반으로만 ([C-5] a). 계정 안전 우선.
 - **2026-06-27:** **헌법 3조 STEP 5 Red Team Pass 보강** — 사장님 승인. 5a 메모리 회수 / 5b 도구 점검 / 5c 사각지대 다양성 / 5d 사장님 직감 확인. 계기: 사장님이 *"레드팀이 사각지대를 못 보면 무용"* 지적 (발견 10번째).
+- **2026-06-27:** **헌법 3조 STEP 3 4역할 모델 재배치** — 사장님 승인 ((가) 옵션). 장인=Claude Sonnet(Desktop/Cowork) / 심판자=GLM 5.2 / 검사관=Groq Llama 3.3 70B / 재판장=Gemini 2.5 Pro. 이유: 헌법 0조 비용 0 수렴 + Anthropic OAuth 외부 호출 금지 (8조) + 4개 제공자 다양성 (5c) 동시 정합.
