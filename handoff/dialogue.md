@@ -50,3 +50,9 @@ Claude Desktop MCP Filesystem으로 직접 commit. 사장님 복붙 노동 0회.
   3. **9조 History** — [C-4] a) NO-GO + [C-5] a) PAL/Zen API키 기반 복구 결정 append.
 - 자기반성: 직전 턴 4조 [E] 정의를 재요청한 것은 **헌법 7조 위반**(본문 안 읽고 SESSION.md만 참조). 본문 확인 결과 [E]는 이미 발효 상태였음.
 - 다음: PAL/Zen 복구 대기 — 사장님 [D]로 user-pal 빨간불 에러 캡처 필요. (Gemini/Groq/Anthropic **API 키**만, OAuth 금지)
+
+## 2026-06-27 [CURSOR] 3대 진단 완료 — 전제 2개 정정
+- **ChromaDB (해결):** NAS에 chroma 컨테이너 없음. 진짜 원인은 `.env USE_CHROMA_SERVER=1` + `CHROMA_HOST=localhost`인데 로컬 8000 서버 미가동. → `USE_CHROMA_SERVER=0`(임베디드, `chroma_data/` 사용)로 변경 → **36/36 green 복구.** ("NAS:8000 재시작"은 헛다리였음.)
+- **PAL/Zen (원인 확정):** `npm enoent: package.json 없음`. 설정 `npx github:BeehiveInnovations/pal-mcp-server`가 틀림 — PAL/Zen은 **Python 서버**(npx 불가). API키 이전에 설치 방식부터 교체 필요.
+- **다음 1턴:** (a) PAL 설정을 Python(uvx/pip) 방식으로 교체 + API키 주입, (b) Intent Extractor 착수 가능(메모리 복구됨).
+- 참고: 임베디드 모드는 단일 프로세스용. 봇+API 동시 가동 시 SQLite 락 우려 → 추후 로컬/NAS chroma 컨테이너로 승격 검토.
