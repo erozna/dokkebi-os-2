@@ -43,8 +43,8 @@ DEBATE_ROLE_FALLBACK: dict[str, str] = {
     "jangin": "gemini/gemini-2.5-pro",      # Cowork 타임아웃 시 임시 대체
 }
 
-# Z.ai(GLM) OpenAI 호환 엔드포인트
-_ZAI_API_BASE = "https://api.z.ai/api/paas/v4"
+# Z.ai(GLM) OpenAI 호환 엔드포인트 (trailing slash 필수 — docs.z.ai)
+_ZAI_API_BASE = "https://api.z.ai/api/paas/v4/"
 
 _DAY_PATTERN = re.compile(r"Day\s*\d+", re.IGNORECASE)
 
