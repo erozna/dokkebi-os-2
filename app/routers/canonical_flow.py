@@ -16,7 +16,7 @@ from app.crew.brain_writer import record_consensus
 from app.routers.capability_router import RouteDecision, append_decision_log, classify
 from app.routers.dod_designer import design_dod
 from app.routers.executor import ExecutionResult, append_execution_log, execute
-from app.routers.intent_extractor import extract_intent
+from app.routers.intent_extractor import ExecutionStrength, extract_intent
 from app.routers.red_team import run_red_team_pass
 from app.routers.usage_doc import generate_usage_doc
 from app.tools.web_search import search_web
@@ -50,6 +50,7 @@ class FlowResult:
     red_team: object | None = None
     routes: list[RouteDecision] = field(default_factory=list)
     executions: list[ExecutionResult] = field(default_factory=list)
+    execution_strength: str = ""
     usage_doc: str = ""
     brain_entry_id: str = ""
     needs_confirmation: bool = False
@@ -76,6 +77,7 @@ def run_canonical_flow(
     log_dialogue: bool = True,
     with_tech_radar: bool = True,
     max_tokens: int = 800,
+    live_execution: bool | None = None,
 ) -> FlowResult:
     """헌법 3조 STEP 0~9 순차 오케스트레이션."""
     fr = FlowResult(user_input=(user_input or "").strip())
@@ -144,17 +146,27 @@ def run_canonical_flow(
     counts = {r: sum(1 for d in fr.routes if d.route == r) for r in "ABCDE"}
     _step(fr, 6, "Capability Router", "done", f"분류 {counts}")
 
-    # STEP 7 — Execution
-    fr.executions = [execute(d) for d in fr.routes]
+    # STEP 7 — Execution (7-A 후보 수집/분석 자동 → 7-B 사장님 [C] 라운드)
+    strength = getattr(fr.intent, "execution_strength", ExecutionStrength.CANDIDATE_LIST)
+    fr.execution_strength = getattr(strength, "value", str(strength))
+    auto_exec = strength in (ExecutionStrength.OK_THEN_AUTO, ExecutionStrength.FULL_AUTO)
+    live = auto_exec if live_execution is None else live_execution
+    fr.executions = [execute(d, live=live) for d in fr.routes]
     if log_dialogue:
         append_execution_log(fr.executions)
-    fr.questions = [e.question for e in fr.executions if e.question]
-    _step(fr, 7, "Execution", "done", f"실행 {len(fr.executions)}건")
+    # 7-B: executor 질문 + Intent가 예측한 사장님 결정 포인트(중간 [C] 라운드)
+    exec_qs = [e.question for e in fr.executions if e.question]
+    decision_qs = list(getattr(fr.intent, "required_user_decisions", []) or [])
+    fr.questions = exec_qs + [q for q in decision_qs if q not in exec_qs]
+    _step(fr, 7, "Execution", "done", f"실행 {len(fr.executions)}건 live={live} 질문 {len(fr.questions)}")
 
-    # needs_confirmation 판정
+    # needs_confirmation 판정 (OK_THEN_AUTO는 사장님 OK 후 자동화 진행 → 확인 필요)
     rt_hold = fr.red_team is not None and not getattr(fr.red_team, "proceed", False)
     has_cd = any(d.route in ("C", "D") for d in fr.routes)
-    fr.needs_confirmation = bool(debate.needs_confirmation or rt_hold or has_cd)
+    ok_then_auto = strength == ExecutionStrength.OK_THEN_AUTO
+    fr.needs_confirmation = bool(
+        debate.needs_confirmation or rt_hold or has_cd or ok_then_auto or fr.questions
+    )
 
     # STEP 8 — Usage Doc Auto-Gen
     fr.usage_doc = generate_usage_doc(fr)

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from unittest.mock import patch
 
-from app.routers.intent_extractor import IntentResult, extract_intent
+from app.routers.intent_extractor import ExecutionStrength, IntentResult, extract_intent
 
 # 평가 데이터셋 #1 — "유튜브 엔진 만들어줘" 정답지 (헌법/dialogue 박제)
 _DATASET_1_LLM = json.dumps(
@@ -15,6 +15,8 @@ _DATASET_1_LLM = json.dumps(
         "hidden_constraints": ["정액제 활용", "무료 도구 우선", "1인 운영 규모"],
         "confidence": 0.82,
         "reasoning": "표면은 엔진 제작이나 진짜 목적은 시간절감과 신뢰 필터. ROI 관점 정액제·무료 도구 중심.",
+        "execution_strength": "OK_THEN_AUTO",
+        "required_user_decisions": ["분석 후보 중 선택", "자동화 도구 진행 여부"],
     },
     ensure_ascii=False,
 )
@@ -32,6 +34,28 @@ def test_extract_intent_dataset_1():
     assert len(result.hidden_constraints) == 3
     assert result.confidence == 0.82
     assert result.needs_confirmation is False  # 0.82 >= 0.7
+    # 보강: 실행 강도 + 사장님 결정 포인트
+    assert result.execution_strength is ExecutionStrength.OK_THEN_AUTO
+    assert result.required_user_decisions == ["분석 후보 중 선택", "자동화 도구 진행 여부"]
+
+
+def test_execution_strength_defaults_to_candidate_list_when_absent():
+    no_strength = json.dumps(
+        {
+            "surface_goal": "x",
+            "true_intent": "y",
+            "hidden_constraints": ["a", "b", "c"],
+            "confidence": 0.8,
+            "reasoning": "z",
+        },
+        ensure_ascii=False,
+    )
+    with patch("app.routers.intent_extractor.call_llm") as mocked:
+        mocked.return_value = (no_strength, "anthropic/claude-sonnet-4-6")
+        result = extract_intent("뭔가")
+
+    assert result.execution_strength is ExecutionStrength.CANDIDATE_LIST
+    assert result.required_user_decisions == []
 
 
 def test_low_confidence_triggers_confirmation():

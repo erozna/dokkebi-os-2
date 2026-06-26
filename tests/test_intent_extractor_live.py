@@ -14,7 +14,7 @@ import os
 import pytest
 
 from app.config import ensure_env_from_credentials
-from app.routers.intent_extractor import extract_intent
+from app.routers.intent_extractor import ExecutionStrength, extract_intent
 
 pytestmark = pytest.mark.live
 
@@ -66,3 +66,12 @@ def test_intent_extractor_live_dataset1() -> None:
     # confidence 0.7 이상이면 needs_confirmation=False (정상). 미만이면 확인 필요로 동작.
     assert result.confidence >= 0.7, f"confidence 낮음: {result.confidence}"
     assert result.needs_confirmation is False
+
+    # 보강(트랙1): 검증·실행 의도 → OK_THEN_AUTO 기대, 사장님 결정 포인트 1개 이상
+    assert result.execution_strength in (
+        ExecutionStrength.OK_THEN_AUTO,
+        ExecutionStrength.FULL_AUTO,
+    ), f"execution_strength 예상 밖: {result.execution_strength}"
+    assert len(result.required_user_decisions) >= 1, (
+        f"required_user_decisions 비어있음: {result.required_user_decisions!r}"
+    )

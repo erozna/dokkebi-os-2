@@ -31,7 +31,7 @@ _RADAR = {"answer": "요약", "results": [{"title": "yt-dlp"}, {"title": "whispe
 
 
 def _patches(debate=_DEBATE, rt=_RT, exec_side=None):
-    def _exec(d):
+    def _exec(d, *, live=False):
         return exec_side(d) if exec_side else ExecutionResult(route=d.route, status="done", detail="ok")
 
     return [

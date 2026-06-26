@@ -23,10 +23,13 @@
 7. **비용 분해 실측:** 토론 1회 $0.0353 中 **재판장 Gemini Pro $0.0249(71%, thinking)**, 장인 Sonnet $0.0103(29%), 심판자·검사관 $0.
 8. **(완료) 트랙 A 평가 #3 재현 + 트랙 B STEP 6 코드화** — 트랙 A: live 1회 재실행 심판자 228자 재현(빈 응답 0건), 합산 $0.046484(재판장 thinking 75%). 트랙 B: `capability_router.py`(5-Way classify) + `canonical_flow.py`(STEP 0~9 오케스트레이터) + `executor.py`(A~E 분기) + `usage_doc.py`(STEP 8) + bot `/run` 한 줄 입력→9단계 자동. 테스트 14 신규 PASS(전체 72), bot import OK.
 9. **(완료) 운영 모드 진입 + 재판장 Flash 교체** — [C-1~4] 모두 (가). 헌법 3조 재판장 Pro→**Flash**(reasoning_effort="disable" → thinkingBudget 0 검증), 폴백 GLM-4.5-Flash. 6조 Live "운영 모드 진입" + 9조 History 2건. crew_debate max_tokens 1500. 전체 72 PASS, /run smoke(mock) 4메시지 양식 확인. live 0회.
-10. **다음 1턴 액션 (택1):**
-   - (A) **운영 모드 첫 실증 (권장·다음 단계)** — 사장님이 텔레그램에서 직접 `/run` 트리거 → 9단계 자동 진행 관찰 → 결과 + Usage Doc 검토 → STEP 7 [A] 화이트리스트 [C-4] 결정. 입력 후보 3개 dialogue 참조. (⚠️ Cursor 자동 호출 금지)
-   - (B) **STEP 4 Tech Radar 본 강화** — Tavily "만들 것 vs 가져올 것" 자동 분리(현재 스켈레톤).
-   - (C) **STEP 7 Executor [A] 실행 강화** — 화이트리스트 기반 실 subprocess/함수 호출(현재 v1 계획만, [C-4] 실증 후 결정).
+10. **(완료·1차 실증) 사장님 `/run 유튜브 부업채널 분석해줘`** — 봇 미기동이 원인이었고 최신 봇 기동 후 9단계 전부 정상 완료(합의 5개 conf 0.70, [A]3+[B]2, SHARED_BRAIN 저장). 재판장 gemini-flash 실전 동작 확인.
+11. **(완료) [C-5~8] 동시 보강** — 트랙1 Intent execution_strength+required_user_decisions(live PASS) / 트랙2 STEP7 화이트리스트 4종 실제 실행+클립보드(yt-dlp live PASS) / STEP7 중간 [C] 라운드(OK_THEN_AUTO) / 트랙3 Usage Doc 결과 중심 / 트랙4 다양성 0.75 원인=stale personas.ROLE_MODELS(가설3 확정 유력, 수정 다음 턴) / 트랙5 헌법 8조 화이트리스트 명문화. 전체 82 PASS, ruff clean.
+12. **다음 1턴 액션 (택1):**
+   - (A) **2차 실증 (권장)** — 사장님이 텔레그램에서 직접 `/run 유튜브 부업채널 분석해줘` 트리거. 이번엔 STEP 7-A 실제 [A] 실행(Tavily/yt-dlp live) + STEP 7-B 사장님 [C] 라운드 발생. 사장님 결정 패턴 누적 시작. (⚠️ Cursor 자동 호출 금지)
+   - (B) **다양성 0.75 수정 [C-7 후속]** — run_red_team_pass에 실제 debate.models_used 주입 또는 personas.ROLE_MODELS 동기화 → 1.0 재측정.
+   - (C) **STEP 7-D/E 자동화 빌드** — 사장님 [C] 선택 후보의 자동화 도구 코드 작성(Cursor 위임).
+   - (D) **STEP 4 Tech Radar 본 강화** — Tavily "만들 것 vs 가져올 것" 자동 분리.
 8. (보류) 보안 키 회수 — 사장님 방침: 1인 로컬 환경 위험 낮음으로 **스킵**. 자격증명 파일 직접 출력 금지 원칙만 유지.
 9. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
 

@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field
+from enum import Enum
 from functools import lru_cache
 
 from app.config import ROOT
@@ -18,6 +19,25 @@ from app.litellm_router import call_llm
 _PROMPT_PATH = ROOT / "prompts" / "intent_extractor.md"
 _DEFAULT_THRESHOLD = 0.7
 _JSON_BLOCK = re.compile(r"\{.*\}", re.DOTALL)
+
+
+class ExecutionStrength(str, Enum):
+    """사장님이 기대하는 실행 강도 (헌법 3조 STEP 7 분기 기준)."""
+
+    INFO_ONLY = "INFO_ONLY"          # 정보 제공만
+    CANDIDATE_LIST = "CANDIDATE_LIST"  # 후보 추천까지
+    OK_THEN_AUTO = "OK_THEN_AUTO"    # 사장님 OK 후 자동화 실행
+    FULL_AUTO = "FULL_AUTO"          # 완전 자동
+
+    @classmethod
+    def coerce(cls, value: object, default: "ExecutionStrength") -> "ExecutionStrength":
+        if isinstance(value, cls):
+            return value
+        token = str(value or "").strip().upper().replace("-", "_").replace(" ", "_")
+        for member in cls:
+            if member.value == token:
+                return member
+        return default
 
 
 @dataclass
@@ -30,6 +50,8 @@ class IntentResult:
     confidence: float = 0.0
     needs_confirmation: bool = True
     reasoning: str = ""
+    execution_strength: ExecutionStrength = ExecutionStrength.CANDIDATE_LIST
+    required_user_decisions: list[str] = field(default_factory=list)
     model_used: str = ""
     raw: str = ""
 
@@ -104,6 +126,9 @@ def extract_intent(
     )
     data = _parse_json(response)
     confidence = _coerce_confidence(data.get("confidence"))
+    strength = ExecutionStrength.coerce(
+        data.get("execution_strength"), ExecutionStrength.CANDIDATE_LIST
+    )
 
     return IntentResult(
         surface_goal=str(data.get("surface_goal", "")).strip(),
@@ -112,6 +137,8 @@ def extract_intent(
         confidence=confidence,
         needs_confirmation=confidence < confidence_threshold,
         reasoning=str(data.get("reasoning", "")).strip(),
+        execution_strength=strength,
+        required_user_decisions=_coerce_constraints(data.get("required_user_decisions")),
         model_used=model_used,
         raw=response,
     )

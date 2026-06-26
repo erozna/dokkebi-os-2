@@ -194,6 +194,15 @@ Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq/GLM Flash), CrewAI 4역할, Subscription
 - 백업 3중: GitHub + Synology Drive + NAS (단일 실패점 방지).
 - **계정 안전:** Anthropic OAuth 토큰을 공식 클라이언트(Claude Code CLI, Claude Desktop, Claude.ai, Cowork) **외부에서 호출 금지.** 제3자 라이브러리(`claude-cli-auth` 등) 도입 시 계정 정지 위험. 멀티모델 오케스트레이션은 **API 키 기반으로만.**
 
+### [A] Auto 화이트리스트 (2026-06-27 발효, 사장님 [C-5] 가)
+STEP 7 [A] 자동 실행이 허용되는 명령은 다음 4종으로 **한정**한다.
+- **yt-dlp** — 메타데이터 수집 옵션만 (`--skip-download --dump-json --flat-playlist` 등). **영상 다운로드 옵션 절대 금지.**
+- **Tavily Web Search API** — 웹 검색.
+- **ChromaDB 쿼리** — 읽기 전용(read-only).
+- **pytest** — 테스트 실행.
+
+화이트리스트 외 명령은 자동 실행 금지 → **[C] 사장님 결정**으로 우회. 명령 추가는 **사장님 명시 [C]로만.** 외부 실행은 `executor.execute(live=True)` 경로에서만 작동(기본은 계획만 반환).
+
 ---
 
 ## [9조] History (Append-only)
@@ -213,3 +222,4 @@ Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq/GLM Flash), CrewAI 4역할, Subscription
 - **2026-06-27:** **Tech Radar 감시 추가**: DeepSeek V4 Flash ($0.14/$0.28 최저가) / Cerebras (일 100만 토큰 무료) / OpenRouter (28개 무료 모델 + $10 충전 시 일 1000회). 미래 다양성 확장 후보.
 - **2026-06-27:** **헌법 3조 STEP 3 재판장 모델 교체** — 사장님 승인 [C-2] 가. Gemini 2.5 Pro → Gemini 2.5 Flash. 이유: 재판장 thinking 토큰이 전체 비용의 71% (DEBATE_EVAL_003 실측). Flash로 교체 시 합산 비용 일10건 월 약 $10.6 → $3.3 (4,500원). 다양성 1.0 유지.
 - **2026-06-27:** **도깨비 OS 운영 모드 진입** — 사장님 승인 [C-3] 가. `/run` 엔드포인트 + Capability Router(5-Way) + Canonical Flow(9-Step) + Executor(A/B/C/D/E 분기) + Usage Doc 자동 생성 완성. 사장님 한 줄 입력 → 9단계 자동. 메신저 노동 종결 직전 (최종 실증 대기).
+- **2026-06-27:** **STEP 7 [A] Auto 화이트리스트 4종 발효** (yt-dlp/Tavily/ChromaDB/pytest). 사장님 [C-5] 가 승인. 동시 보강: Intent에 execution_strength(INFO_ONLY/CANDIDATE_LIST/OK_THEN_AUTO/FULL_AUTO) + required_user_decisions 추가([C-8]), STEP 7 중간 [C] 라운드(OK_THEN_AUTO), [B] 클립보드 자동 복사([C-6]), Usage Doc 결과 중심 강화, Red Team 다양성 0.75 원인 추적([C-7] — 측정 대상이 stale `personas.ROLE_MODELS`).
