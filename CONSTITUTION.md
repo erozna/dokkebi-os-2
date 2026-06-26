@@ -85,7 +85,7 @@
 
 ---
 
-## [4조] 4-Way Capability Router
+## [4조] 5-Way Capability Router
 
 | 분류 | 조건 | 예시 |
 |------|------|------|
@@ -93,9 +93,11 @@
 | **[B] Bridge** | 정액제 활용으로 비용 0 가능 | Claude/Gemini 웹 복붙, `/bridge` 라운드 |
 | **[C] Ask** | 가치 판단 필요 | "GLM 5.2 도입할까?" |
 | **[D] Hands** | 현재 자동화 불가 + 사장님 시간 활용 | OAuth 토큰 발급, SaaS 회원가입, 캡차, 결제 |
+| **[E] Background** | 반복적 + 즉시 응답 불필요 + 권한 위험 낮음 | Cowork scheduled task, 매주 Tech Radar, 자동 백업, 모니터링 |
 
 - **[B] 채널:** Claude / Gemini / Cursor / Antigravity / Claude Code (정액제 우선)
 - **[D] 의미:** 도깨비가 "이 작업은 아직 자동화 불가 → 사장님이 5분만 직접 → 캡처 보내주시면 다음 단계"로 **능동 위임**. 사장님 백수 시간이 시스템 자산이 된다.
+- **[E] 의미:** Claude Cowork 또는 scheduled task로 백그라운드 자율 실행. **사장님이 자는 동안에도 작업이 굴러간다.** 권한 범위는 화이트리스트 명시 필수. **자격증명 폴더(`D:/SynologyDrive/dokkebi_secrets/`) 등 민감 경로 절대 금지.** 출처 prompt injection 방어 위해 검색/fetch는 신뢰 도메인 화이트리스트만 허용.
 
 ---
 
@@ -153,3 +155,5 @@ Mem0+Chroma, LiteLLM(Sonnet/Gemini/Groq), CrewAI 4역할, Subscription Bridge, E
 - **2026-06-25:** Week 1~2 완료. Cursor Level M 자율 모드 도입. repo PUBLIC + branch protection.
 - **2026-06-26:** 방향 재정렬. 4-Way Router([A][B][C][D]) 도입. Subscription Bridge 발효. **헌법 v1.0 발효 (0조 최상위 + 1~9조).** Bridge 런타임을 `handoff/bridge/`로 분리, 세션 인계 문서를 `handoff/SESSION.md`로 표준화. Week 3 Tauri 일시 보류, Week 3.5~3.9 인지 레이어 결정.
 - **2026-06-26:** 3조 Canonical Flow 9단계 원문 복원 (Cursor 보정 후 사장님 승인).
+- **2026-06-26:** **Claude Desktop MCP Filesystem 양방향 브리지 발효.** 이전 세션의 "파일 접근 불가" 단언은 자기 점검 게으름이었고, 사장님 정정으로 발효. 이 헌법 갱신이 Claude(채팅)가 파일 시스템에 직접 쓴 첫 commit.
+- **2026-06-26:** **헌법 4조 [E] Background 분류 신설 — 사장님 승인.** Claude Cowork 도입 GO ([C-1] a). Cursor에 MCP 서버 점검 위임 ([C-3] a, mcp-memory 추가는 점검 후 결정).
