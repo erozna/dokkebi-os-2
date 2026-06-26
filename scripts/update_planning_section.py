@@ -279,7 +279,7 @@ def build_planning() -> dict:
             "version": "1.0",
             "effective": "2026-06-26",
             "file": "CONSTITUTION.md",
-            "boot_command": "@CONSTITUTION.md @handoff/SESSION.md 읽고 진행",
+            "boot_command": "@CONSTITUTION.md @handoff/latest.md 읽고 진행",
             "mission_memory_9": [
                 "진짜 의도 추출",
                 "자율 DoD 설계",

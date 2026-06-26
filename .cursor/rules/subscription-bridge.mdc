@@ -6,9 +6,9 @@ alwaysApply: false
 
 # Subscription Bridge
 
-When `handoff/latest.md` or `handoff/implement.md` exists and the user is continuing a Bridge session:
+When `handoff/bridge/latest.md` or `handoff/bridge/implement.md` exists and the user is continuing a Bridge session:
 
-1. Read `handoff/latest.md` first for round summaries and consensus.
+1. Read `handoff/bridge/latest.md` first for round summaries and consensus.
 2. Implement only what the consensus section states; minimal diff.
 3. Run `pytest` after changes.
 4. Do not use CrewAI API debate when Bridge mode is active — web subscriptions already provided the debate.

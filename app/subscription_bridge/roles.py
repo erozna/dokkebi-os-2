@@ -64,10 +64,10 @@ ROLES: dict[str, BridgeRole] = {
         id="cursor",
         label="Cursor",
         channel="cursor_ide",
-        channel_hint="Cursor Pro — handoff/latest.md @참조",
+        channel_hint="Cursor Pro — handoff/bridge/latest.md @참조",
         instruction=(
             "합의안을 repo에 구현. pytest 통과, 최소 diff. "
-            "SHARED_BRAIN·handoff/latest.md 먼저 읽기."
+            "SHARED_BRAIN·handoff/bridge/latest.md 먼저 읽기."
         ),
     ),
 }

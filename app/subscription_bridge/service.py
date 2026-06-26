@@ -163,7 +163,7 @@ def bridge_next() -> dict[str, Any]:
         latest = rebuild_latest(manifest)
         return {
             "done": True,
-            "message": "모든 라운드 완료. handoff/latest.md 를 Cursor에서 @참조하세요.",
+            "message": "모든 라운드 완료. handoff/bridge/latest.md 를 Cursor에서 @참조하세요.",
             "latest_path": str(LATEST_PATH),
             "latest_excerpt": latest[:500],
         }
@@ -175,7 +175,7 @@ def bridge_next() -> dict[str, Any]:
             "role": "cursor",
             "channel_hint": ROLES["cursor"].channel_hint,
             "latest_path": str(LATEST_PATH),
-            "message": "Cursor에서 handoff/latest.md 와 handoff/implement.md 를 열고 구현하세요.",
+            "message": "Cursor에서 handoff/bridge/latest.md 와 handoff/bridge/implement.md 를 열고 구현하세요.",
             "latest_excerpt": latest[:500],
         }
 

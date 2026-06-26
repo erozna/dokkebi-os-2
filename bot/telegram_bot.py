@@ -128,7 +128,7 @@ def _format_bridge_next(result: dict) -> str:
         return (
             f"[Bridge 완료]\n"
             f"{result.get('message', '')}\n"
-            f"latest: {result.get('latest_path', 'handoff/latest.md')}"
+            f"latest: {result.get('latest_path', 'handoff/bridge/latest.md')}"
         )
     return (
         f"[Bridge round {result.get('round')}]\n"

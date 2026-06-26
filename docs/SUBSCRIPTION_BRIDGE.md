@@ -8,7 +8,7 @@ Claude/Gemini **웹 정액제** + **Cursor Pro** + 도깨비 **기억·라운드
 2. **Claude 웹**에 붙여넣기 → 답변 복사
 3. `/bridge ingest <답변>` — Mem0 + `handoff/inbox/` 저장
 4. 자동으로 다음 라운드 안내 (심판자→Gemini, …)
-5. 완료 후 **Cursor**에서 `@handoff/latest.md` 참조
+5. 완료 후 **Cursor**에서 `@handoff/bridge/latest.md` 참조
 
 ## 라운드
 

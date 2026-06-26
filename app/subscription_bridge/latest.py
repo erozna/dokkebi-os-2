@@ -1,4 +1,4 @@
-"""handoff/latest.md — Cursor용 요약."""
+"""handoff/bridge/latest.md — Cursor용 요약."""
 
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ def rebuild_latest(manifest: dict) -> str:
     text = "\n".join(lines)
     LATEST_PATH.write_text(text, encoding="utf-8")
     IMPLEMENT_PATH.write_text(
-        f"# Implement\n\n{consensus or topic}\n\nSee handoff/latest.md for full context.\n",
+        f"# Implement\n\n{consensus or topic}\n\nSee handoff/bridge/latest.md for full context.\n",
         encoding="utf-8",
     )
     return text
