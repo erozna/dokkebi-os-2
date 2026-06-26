@@ -204,7 +204,9 @@ def run_debate(
                 "criteria": result.consensus or dod.criteria,
                 "reasoning": result.reasoning,
             }
-            rt = run_red_team_pass(consensus)
+            rt = run_red_team_pass(
+                consensus, actual_models=list(result.models_used.values()) or None
+            )
             result.red_team = rt
             result.restarts = attempt
             # 강제 단계 누락 → 재시작. 사장님 확인 대기(steps_complete=True)는 정상 종료.

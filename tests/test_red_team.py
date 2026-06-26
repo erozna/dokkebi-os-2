@@ -4,11 +4,24 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+from app.crew.personas import ROLE_MODELS
 from app.routers.red_team import (
     RedTeamResult,
     diversity_check,
     run_red_team_pass,
 )
+
+
+def _stub_steps():
+    """5a/5b/5c 강제 단계 통과 스텁 묶음."""
+    return (
+        patch("app.routers.red_team.memory_recall", return_value=(["x"], True)),
+        patch("app.routers.red_team.tool_audit", return_value=(["filesystem"], True)),
+        patch(
+            "app.routers.red_team.red_team_debate",
+            return_value=(["a", "b", "c"], "anthropic/claude-sonnet-4-6"),
+        ),
+    )
 
 _CONSENSUS = {
     "surface_goal": "유튜브 수익 검증 엔진 제작",
@@ -96,6 +109,62 @@ def test_run_red_team_pass_missing_memory_holds():
     assert result.memory_recall_done is False
     assert result.steps_complete is False
     assert result.proceed is False
+
+
+def test_role_models_synced_to_constitution_step3():
+    """헌법 3조 STEP 3 동기화: 레거시 fallback도 4제공자 = 1.0."""
+    providers = {m.split("/")[0] for m in ROLE_MODELS.values()}
+    assert providers == {"anthropic", "zai", "groq", "gemini"}
+    score, ok, _ = diversity_check(list(ROLE_MODELS.values()))
+    assert score == 1.0
+    assert ok is True
+
+
+def test_run_red_team_pass_actual_models_diversity_1():
+    """actual_models(실제 토론 로스터 4제공자) 주입 → 다양성 1.0."""
+    m_mem, m_tool, m_deb = _stub_steps()
+    with m_mem, m_tool, m_deb:
+        result = run_red_team_pass(
+            _CONSENSUS,
+            actual_models=[
+                "anthropic/claude-sonnet-4-6",
+                "zai/glm-4.5-flash",
+                "groq/llama-3.3-70b-versatile",
+                "gemini/gemini-2.5-flash",
+            ],
+            user_confirmed=True,
+        )
+    assert result.diversity_score == 1.0
+    assert result.proceed is True
+
+
+def test_run_red_team_pass_stale_models_diversity_075():
+    """stale 모델 목록(anthropic 2회·zai 누락) → 0.75 (버그 재현 가드)."""
+    m_mem, m_tool, m_deb = _stub_steps()
+    with m_mem, m_tool, m_deb:
+        result = run_red_team_pass(
+            _CONSENSUS,
+            models=[
+                "anthropic/claude-opus-4-6",
+                "gemini/gemini-2.5-flash",
+                "groq/llama-3.3-70b-versatile",
+                "anthropic/claude-sonnet-4-6",
+            ],
+            user_confirmed=True,
+        )
+    assert result.diversity_score == 0.75
+
+
+def test_run_red_team_pass_actual_models_overrides_models():
+    """actual_models가 models보다 우선."""
+    m_mem, m_tool, m_deb = _stub_steps()
+    stale = ["anthropic/a", "anthropic/b", "anthropic/c", "anthropic/d"]
+    fresh = ["anthropic/a", "zai/b", "groq/c", "gemini/d"]
+    with m_mem, m_tool, m_deb:
+        result = run_red_team_pass(
+            _CONSENSUS, models=stale, actual_models=fresh, user_confirmed=True
+        )
+    assert result.diversity_score == 1.0
 
 
 def test_run_red_team_pass_insufficient_debate_holds():

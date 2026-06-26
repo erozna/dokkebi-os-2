@@ -135,7 +135,9 @@ def run_canonical_flow(
         "criteria": fr.consensus or getattr(fr.dod, "criteria", []),
         "reasoning": fr.reasoning,
     }
-    fr.red_team = run_red_team_pass(consensus_dict)
+    fr.red_team = run_red_team_pass(
+        consensus_dict, actual_models=list(debate.models_used.values()) or None
+    )
     _step(fr, 5, "Red Team", "done", f"다양성 {getattr(fr.red_team, 'diversity_score', 0):.2f}")
 
     # STEP 6 — Capability Router

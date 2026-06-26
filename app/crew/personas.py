@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
+import os
+
 from crewai import Agent, LLM
 
 from app.config import ensure_env_from_credentials
 
+# 헌법 3조 STEP 3과 동기화 (2026-06-27). 4개 제공자 = 다양성 1.0.
+# 장인=Anthropic / 심판자=Z.ai / 검사관=Groq / 재판장=Google.
 ROLE_MODELS: dict[str, str] = {
-    "장인": "anthropic/claude-opus-4-6",
-    "심판자": "gemini/gemini-2.5-flash",
+    "장인": "anthropic/claude-sonnet-4-6",
+    "심판자": "zai/glm-4.5-flash",
     "검사관": "groq/llama-3.3-70b-versatile",
-    "재판장": "anthropic/claude-sonnet-4-6",
+    "재판장": "gemini/gemini-2.5-flash",
 }
+
+_ZAI_API_BASE_DEFAULT = "https://api.z.ai/api/paas/v4/"
 
 _JANGIN_GOAL = """실용적인 구현안을 제시한다.
 코드·아키텍처·실행 순서 위주. 이모지 금지. 한국어."""
@@ -28,7 +34,18 @@ _CHAIR_GOAL = """재판장으로 앞선 발언을 종합해 실행 가능한 합
 
 def _llm(role: str) -> LLM:
     ensure_env_from_credentials()
-    return LLM(model=ROLE_MODELS[role], temperature=0.3, max_tokens=600)
+    model = ROLE_MODELS[role]
+    # Z.ai(GLM)는 OpenAI 호환 — crewai/litellm 라우팅 위해 base_url+api_key 명시.
+    if model.startswith("zai/"):
+        bare = model.split("/", 1)[1]
+        return LLM(
+            model=f"openai/{bare}",
+            temperature=0.3,
+            max_tokens=600,
+            base_url=os.environ.get("ZAI_API_BASE", _ZAI_API_BASE_DEFAULT),
+            api_key=os.environ.get("ZAI_API_KEY"),
+        )
+    return LLM(model=model, temperature=0.3, max_tokens=600)
 
 
 def build_agents() -> dict[str, Agent]:

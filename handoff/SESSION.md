@@ -25,11 +25,12 @@
 9. **(완료) 운영 모드 진입 + 재판장 Flash 교체** — [C-1~4] 모두 (가). 헌법 3조 재판장 Pro→**Flash**(reasoning_effort="disable" → thinkingBudget 0 검증), 폴백 GLM-4.5-Flash. 6조 Live "운영 모드 진입" + 9조 History 2건. crew_debate max_tokens 1500. 전체 72 PASS, /run smoke(mock) 4메시지 양식 확인. live 0회.
 10. **(완료·1차 실증) 사장님 `/run 유튜브 부업채널 분석해줘`** — 봇 미기동이 원인이었고 최신 봇 기동 후 9단계 전부 정상 완료(합의 5개 conf 0.70, [A]3+[B]2, SHARED_BRAIN 저장). 재판장 gemini-flash 실전 동작 확인.
 11. **(완료) [C-5~8] 동시 보강** — 트랙1 Intent execution_strength+required_user_decisions(live PASS) / 트랙2 STEP7 화이트리스트 4종 실제 실행+클립보드(yt-dlp live PASS) / STEP7 중간 [C] 라운드(OK_THEN_AUTO) / 트랙3 Usage Doc 결과 중심 / 트랙4 다양성 0.75 원인=stale personas.ROLE_MODELS(가설3 확정 유력, 수정 다음 턴) / 트랙5 헌법 8조 화이트리스트 명문화. 전체 82 PASS, ruff clean.
-12. **다음 1턴 액션 (택1):**
-   - (A) **2차 실증 (권장)** — 사장님이 텔레그램에서 직접 `/run 유튜브 부업채널 분석해줘` 트리거. 이번엔 STEP 7-A 실제 [A] 실행(Tavily/yt-dlp live) + STEP 7-B 사장님 [C] 라운드 발생. 사장님 결정 패턴 누적 시작. (⚠️ Cursor 자동 호출 금지)
-   - (B) **다양성 0.75 수정 [C-7 후속]** — run_red_team_pass에 실제 debate.models_used 주입 또는 personas.ROLE_MODELS 동기화 → 1.0 재측정.
-   - (C) **STEP 7-D/E 자동화 빌드** — 사장님 [C] 선택 후보의 자동화 도구 코드 작성(Cursor 위임).
-   - (D) **STEP 4 Tech Radar 본 강화** — Tavily "만들 것 vs 가져올 것" 자동 분리.
+12. **(완료) 정체성 확정 후속 — 다양성 0.75 수정 + 오케스트레이터 설계 + PAL 진단** — 도깨비 OS = "AI 오케스트레이터 + 교차검증 + 결정만 보고". (2)다양성 버그 수정: run_red_team_pass `actual_models` 인자 + crew_debate/canonical_flow가 debate.models_used 주입 + personas.ROLE_MODELS 헌법 3조 동기화(+z.ai-aware _llm) + 테스트 4건(actual=1.0/stale=0.75) → red_team 24 PASS. (3)docs/ORCHESTRATOR_DESIGN.md 설계만(Cross-AI Validator+Short Report 우선, 코드 [C] 대기). (4)PAL 판정=복구 불필요(선택): tools 0개=dead, 원인=env 키 없음+npx github cold-start, Validator로 90%+ 대체. (5)실증 시나리오 후보 3개 dialogue 기록. live 0회.
+13. **다음 1턴 액션 (택1):**
+   - (A) **헌법 1조 갱신 push** — Claude가 헌법 0조+1조+6조 Live 직접 편집 완료 신호 주면 Cursor가 commit 후 push (작업 1).
+   - (B) **시나리오 첫 실증 (권장)** — 사장님이 텔레그램에서 직접 `/run` 트리거(후보 3개 중 택1: 유튜브 부업채널 / K-Insider 뉴스레터 / GPT 토론 검증). 다양성 1.0 실측 + STEP 7 [A] live + 사장님 [C] 결정 패턴 누적. (⚠️ Cursor 자동 호출 금지)
+   - (C) **PAL/Zen 복구 [D]** — 사장님이 Cursor 설정→MCP→pal 에러 캡처(1분) → uvx+API키 방식 전환 또는 Validator 자체 구현으로 대체 결정.
+   - (D) **오케스트레이터 모듈 착수 [C]** — Short Report Generator(소) 또는 Cross-AI Validator(중) 코드 작성 승인.
 8. (보류) 보안 키 회수 — 사장님 방침: 1인 로컬 환경 위험 낮음으로 **스킵**. 자격증명 파일 직접 출력 금지 원칙만 유지.
 9. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
 

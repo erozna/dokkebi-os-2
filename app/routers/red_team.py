@@ -186,14 +186,17 @@ def run_red_team_pass(
     consensus: dict,
     *,
     models: list[str] | None = None,
+    actual_models: list[str] | None = None,
     run_debate: bool = True,
     user_confirmed: bool | None = None,
 ) -> RedTeamResult:
     """STEP 5 전 과정 실행. 강제 단계 누락 또는 사장님 미확인 시 proceed=False.
 
     user_confirmed: None=대기([C]), True=직감 일치, False=5a 회귀 권고.
+    다양성 측정 우선순위: actual_models(이번 토론 실제 사용) > models(명시) > ROLE_MODELS(fallback).
+    actual_models를 넘기면 레거시 ROLE_MODELS 대신 실제 토론 로스터로 5c 다양성을 잰다.
     """
-    models = models or list(ROLE_MODELS.values())
+    models = actual_models or models or list(ROLE_MODELS.values())
     topic = _topic_text(consensus)
 
     recalled, mem_ok = memory_recall(topic)          # 5a
