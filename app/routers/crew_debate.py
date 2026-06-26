@@ -105,7 +105,10 @@ def _run_once(
     result.models_used["jangin"] = jangin.model_used
     if jangin.usage:
         result.total_usd += float(jangin.usage.get("usd", 0))
-    result.rounds.append({"role": "jangin", "model": jangin.model_used, "content": jangin.design, "via": jangin.via})
+    result.rounds.append({
+        "role": "jangin", "model": jangin.model_used, "content": jangin.design,
+        "via": jangin.via, "usage": jangin.usage or {},
+    })
     if log_dialogue:
         _append_dialogue("jangin", jangin.design)
 
@@ -115,7 +118,7 @@ def _run_once(
     result.simpanja = text
     result.models_used["simpanja"] = model
     result.total_usd += float(usage.get("usd", 0))
-    result.rounds.append({"role": "simpanja", "model": model, "content": text})
+    result.rounds.append({"role": "simpanja", "model": model, "content": text, "usage": usage})
     if log_dialogue:
         _append_dialogue("simpanja", text)
 
@@ -125,7 +128,7 @@ def _run_once(
     result.geomsakwan = text
     result.models_used["geomsakwan"] = model
     result.total_usd += float(usage.get("usd", 0))
-    result.rounds.append({"role": "geomsakwan", "model": model, "content": text})
+    result.rounds.append({"role": "geomsakwan", "model": model, "content": text, "usage": usage})
     if log_dialogue:
         _append_dialogue("geomsakwan", text)
 
@@ -152,7 +155,7 @@ def _run_once(
     result.jaepanjang = text
     result.models_used["jaepanjang"] = model
     result.total_usd += float(usage.get("usd", 0))
-    result.rounds.append({"role": "jaepanjang", "model": model, "content": text})
+    result.rounds.append({"role": "jaepanjang", "model": model, "content": text, "usage": usage})
     if log_dialogue:
         _append_dialogue("jaepanjang", text)
 

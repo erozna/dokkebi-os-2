@@ -19,12 +19,12 @@
 3. **(완료) DoD Auto-Designer (STEP 2) + 평가 #1** — Gemini 2.5-flash **PASS** (confidence 0.90, criteria 5개·측정단위 100%, 정답 4/5, $0.0044/호출). 결과 `docs/DOD_EVAL_001.md`. `/dod` 봇 파이프라인(Intent→DoD→STEP5) 추가.
 4. **(완료) 헌법 STEP 5 보강 발효 + Red Team 모듈** — `60f8054` push + NAS SHA256 OK. `app/routers/red_team.py`(5a~5d) + DoD `red_team=True` 후크 + 다양성 검증(현 점수 0.75).
 5. **(완료) STEP 3 CrewAI 4역할 토론 본 구현 + 평가 #1** — 장인→심판자→검사관→재판장 순차 토론 → 합의안 → Red Team. 실 LLM 평가 **PASS** (테마 5/5, confidence 0.80, $0.0576/회). `app/routers/crew_debate.py` + `jangin_via_cowork.py` + `prompts/{jangin,simpanja,geomsakwan,jaepanjang}.md` + `/debate` 봇 한방 파이프라인. 결과 `docs/DEBATE_EVAL_001.md`. 모킹 4건 + live 1건 통과. (전체 58 passed, ruff clean)
-6. **(완료) 심판자 GLM-4.5-Flash 통합 + 평가 #2** — `80a73ad`(헌법) push+NAS OK. 심판자 `zai/glm-4.5-flash` 실호출 성공(잔액 문제 해소), **진짜 다양성 1.0 달성**, 비용 **$0.0374/회(-35%)**, 합의안 PASS(4/5, conf 0.85). `docs/DEBATE_EVAL_002.md`. **단 심판자 Flash 빈 응답(thinking) 발견 → `extra_body thinking disabled` 수정 적용, 다음 턴 1회 검증 필요.**
-7. **다음 1턴 액션 (택1):**
-   - (A) **심판자 Flash 빈 응답 수정 검증** — `/debate` 또는 eval live 1회로 thinking-disabled 효과 확인 (약점 3가지 정상 추출되는지). **최우선 권장.**
-   - (B) **장인 비용 [C-B] 사장님 결정** — dialogue [C-B] 발의(실측 기반). 비용 핵심은 재판장 Gemini Pro thinking.
-   - (C) **STEP 4 Tech Radar 강화** — Tavily로 "만들 것 vs 가져올 것" 자동 분리.
-   - (D) **STEP 6 Capability Router 코드화** — [A]~[E] 분류 로직.
+6. **(완료) 심판자 GLM-4.5-Flash 통합 + 평가 #2/#3** — `80a73ad`(헌법) push+NAS OK. 다양성 **1.0 달성**. 평가 #2서 심판자 빈 응답 → **#3서 `thinking disabled`로 해결**(228자, 약점 3가지 정확 추출, conf 0.90, $0.0353/회). `docs/DEBATE_EVAL_002/003.md`.
+7. **비용 분해 실측:** 토론 1회 $0.0353 中 **재판장 Gemini Pro $0.0249(71%, thinking)**, 장인 Sonnet $0.0103(29%), 심판자·검사관 $0.
+8. **다음 1턴 액션 (택1):**
+   - (A) **[C-B]+[C-C] 사장님 결정 → 헌법 갱신** — 권장: 장인 Sonnet 유지 + 재판장 Gemini **Flash**로 교체(다양성 1.0 유지, 비용 71%↓, 일 10건 월 ~$3.3). dialogue 발의·월 시뮬 참조.
+   - (B) **STEP 4 Tech Radar 강화** — Tavily로 "만들 것 vs 가져올 것" 자동 분리.
+   - (C) **STEP 6 Capability Router 코드화** — [A]~[E] 분류 로직.
 8. (보류) 보안 키 회수 — 사장님 방침: 1인 로컬 환경 위험 낮음으로 **스킵**. 자격증명 파일 직접 출력 금지 원칙만 유지.
 9. (선택 [D]) PAL/Zen 복구 — 설정을 Python(uvx) 방식으로 교체 + API키. 현재 npx 참조라 실패 중.
 
