@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import ensure_env_from_credentials, use_chroma_server
 from app.memory_service import format_memory_results, search_memories
+from app.routers.crew_debate import run_debate
 from app.routers.dod_designer import design_dod
 from app.routers.intent_extractor import extract_intent
 from app.subscription_bridge import bridge_ingest, bridge_next, bridge_prep, bridge_status
@@ -92,25 +93,54 @@ async def goal(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def debate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """CrewAI 4역할 토론."""
+    """Intent → DoD → 4역할 토론 → Red Team 한방 (헌법 3조 STEP 1·2·3·5)."""
     text = " ".join(context.args).strip() if context.args else ""
     if not text:
         await update.message.reply_text(
-            "사용법: /debate <주제>\n예) /debate Week 2 CrewAI 착수 순서"
+            "사용법: /debate <문장>\n예) /debate 유튜브 수익 검증 엔진 만들어줘"
         )
         return
 
-    chat_id = str(update.effective_chat.id) if update.effective_chat else "telegram"
+    await update.message.reply_text("4역할 토론 진행 중… (장인→심판자→검사관→재판장, 약 1분)")
     try:
-        result = run_supervisor(
-            text,
-            thread_id=f"tg-{chat_id}",
-            router_intent="debate",
-        )
-        await update.message.reply_text(result.get("response") or "응답 없음")
+        intent_result = extract_intent(text)
+        dod_result = design_dod(intent_result, red_team=False)  # 토론에서 Red Team 일괄 실행
+        result = run_debate(intent_result, dod_result, with_red_team=True, log_dialogue=True)
     except Exception as exc:  # noqa: BLE001
         logger.exception("/debate 실패")
-        await update.message.reply_text(f"처리 중 오류: {exc}")
+        await update.message.reply_text(f"토론 중 오류: {exc}")
+        return
+
+    consensus = "\n".join(f"  {i}. {c}" for i, c in enumerate(result.consensus, 1)) or "  - (없음)"
+    lines = [
+        "[4역할 토론 합의안 — 헌법 3조 STEP 3]",
+        f"진짜 의도: {intent_result.true_intent or '-'}",
+        "최종 완료조건:",
+        consensus,
+        f"확신도: {result.confidence:.2f}  비용: ${result.total_usd:.4f}",
+        f"[모델] 장인 {result.models_used.get('jangin','-')} / 심판자 {result.models_used.get('simpanja','-')}"
+        f" / 검사관 {result.models_used.get('geomsakwan','-')} / 재판장 {result.models_used.get('jaepanjang','-')}",
+    ]
+
+    rt = result.red_team
+    if rt is not None:
+        lines.append("")
+        lines.append("[Red Team Pass — STEP 5]")
+        if rt.failure_reasons:
+            lines.append("6개월 후 실패 이유:")
+            lines.extend(f"  - {r}" for r in rt.failure_reasons[:3])
+        lines.append(
+            f"모델 다양성: {rt.diversity_score:.2f}"
+            + (f"  ⚠ {rt.diversity_warning}" if rt.diversity_warning else "")
+        )
+
+    if result.needs_confirmation:
+        lines.append("")
+        if rt is not None and rt.needs_user_intuition:
+            lines.append(rt.user_question)
+        else:
+            lines.append("확신도/완료조건 미확정. 사장님 확인 요청: 위 합의안이 맞습니까? (예/아니오)")
+    await update.message.reply_text("\n".join(lines)[:4000])
 
 
 async def intent(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
